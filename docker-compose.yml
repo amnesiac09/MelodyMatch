@@ -3,7 +3,7 @@ version: "3"
 services:
   vms-db:
     container_name: melodymatch
-    image: "postgres:15"
+    image: "postgres:14"
     ports:
       - "5433:5433"
     environment:
