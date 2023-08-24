@@ -7,8 +7,6 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import ge.ananeishvililgorgadze.melodymatch.repository.UserRepository;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +14,13 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,7 +30,10 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 
 
@@ -50,6 +56,43 @@ public class SecurityConfiguration {
 		authProvider.setUserDetailsService(userDetailsService);
 		authProvider.setPasswordEncoder(encoder());
 		return new ProviderManager(authProvider);
+	}
+
+	@Bean
+	public WebSecurityCustomizer webSecurityCustomizer() {
+		return (web) -> web
+				.ignoring()
+				.antMatchers("/api/auth/**")
+				.and()
+				.ignoring()
+				.antMatchers("/public-api/**")
+				.and()
+				.ignoring()
+				.antMatchers("/");
+	}
+
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		return http
+				.cors(Customizer.withDefaults())
+				.csrf(AbstractHttpConfigurer::disable)
+				.authorizeRequests( auth -> auth
+						.mvcMatchers("/v3/api-docs/**")
+						.permitAll()
+						.mvcMatchers("/swagger-ui/**")
+						.permitAll()
+						.mvcMatchers("/v2/api-docs/**")
+						.permitAll()
+						.mvcMatchers("/swagger-resources/**")
+						.permitAll()
+						.antMatchers("/")
+						.permitAll()
+						.antMatchers("/api/**")
+						.authenticated()
+				)
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.oauth2ResourceServer().jwt().and().bearerTokenResolver((request -> tokenExtractor(request, "Authorization"))).and()
+				.build();
 	}
 
 	@Bean

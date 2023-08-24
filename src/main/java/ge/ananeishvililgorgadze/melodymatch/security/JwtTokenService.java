@@ -1,6 +1,5 @@
 package ge.ananeishvililgorgadze.melodymatch.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,9 +26,9 @@ public class JwtTokenService {
 	private final JwtDecoder refreshTokenDecoder;
 	private final UserDetailsService service;
 
-	private static int accessTokenExpirationMinutes = 2;
+	private static final int accessTokenExpirationMinutes = 2;
 
-	private static int refreshTokenExpirationHours = 24;
+	private static final int refreshTokenExpirationHours = 24;
 
 	public JwtTokenService(JwtEncoder accessTokenEncoder,
 						   @Qualifier("refreshTokenEncoder") JwtEncoder refreshTokenEncoder,
