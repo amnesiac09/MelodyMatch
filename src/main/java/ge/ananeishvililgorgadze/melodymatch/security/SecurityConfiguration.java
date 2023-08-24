@@ -62,7 +62,7 @@ public class SecurityConfiguration {
 	public WebSecurityCustomizer webSecurityCustomizer() {
 		return (web) -> web
 				.ignoring()
-				.antMatchers("/api/auth/**")
+				.antMatchers("/api/**")
 				.and()
 				.ignoring()
 				.antMatchers("/public-api/**")

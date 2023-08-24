@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
 			}
 			return userRepository.save(systemUser);
 		} catch (Exception ex) {
-			throw new RuntimeException("System user with username " + systemUser.getUsername() + " already exists");
+			throw new RuntimeException(ex.getCause());
 		}
 	}
 
