@@ -1,5 +1,6 @@
 package ge.ananeishvililgorgadze.melodymatch.controller;
 
+import com.nimbusds.jose.util.Pair;
 import ge.ananeishvililgorgadze.melodymatch.domain.dto.UserDTO;
 import ge.ananeishvililgorgadze.melodymatch.mapper.UserMapper;
 import ge.ananeishvililgorgadze.melodymatch.service.UserService;
@@ -11,14 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -71,6 +65,20 @@ public class UserRestController {
 	})
 	public UserDTO updateUser(@RequestBody UserDTO systemUserModel) {
 		return userMapper.toDTO(userService.editUser(userMapper.fromDTO(systemUserModel)));
+	}
+	@PutMapping(value = "likeUser", produces = "application/json")
+	@Operation(summary = "Like user", responses = {
+			@ApiResponse(responseCode = "200",
+					description = "Successfully liked user", content = @Content(schema = @Schema(implementation = String.class))),
+			@ApiResponse(responseCode = "400", description = "One of the query parameters has a bad value"),
+			@ApiResponse(responseCode = "500", description = "Error occurred while updating user"),
+	})
+	public ResponseEntity<String> likeUser(@RequestParam Long firstId, @RequestParam Long secondId) {
+		if(userService.likeUser(firstId, secondId)) {
+			return ResponseEntity.ok("You are now friends")	;
+		}else{
+			return ResponseEntity.ok("System user liked successfully");
+		}
 	}
 
 	@DeleteMapping(value = "delete/{id}", produces = "application/json")
