@@ -1,7 +1,7 @@
 package ge.ananeishvililgorgadze.melodymatch.service;
 
 import ge.ananeishvililgorgadze.melodymatch.domain.UserEntity;
-import org.apache.catalina.User;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
 	UserEntity getUser(long id);
@@ -12,5 +12,11 @@ public interface UserService {
 
 	UserEntity editUser(UserEntity user);
 	boolean likeUser(Long firstUserId, Long secondUserId);
+
+	void uploadFile(MultipartFile file, int userId);
+
+	byte[] downloadFile(String filename);
+
+	void deleteFile(String filename, int userId);
 
 }
