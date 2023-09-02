@@ -21,4 +21,6 @@ public class UserDTO {
 	private List<Long> likedUsers;
 
 	private List<Long> matchedUsers;
+
+	private List<String> mediaFilenames;
 }

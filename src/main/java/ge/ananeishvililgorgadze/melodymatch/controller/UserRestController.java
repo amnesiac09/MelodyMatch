@@ -11,8 +11,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -91,5 +95,49 @@ public class UserRestController {
 	public ResponseEntity<String> deleteUser(@PathVariable("id") long id) {
 		userService.deleteUser(id);
 		return ResponseEntity.ok("System user deleted successfully");
+	}
+
+	@PostMapping(value = "uploadFile", produces = "application/json")
+	@Operation(summary = "Upload file", responses = {
+			@ApiResponse(responseCode = "200", description = "File uploaded successfully", content = @Content(schema = @Schema(implementation = String.class))),
+			@ApiResponse(responseCode = "400", description = "Bad request or file size too large"),
+			@ApiResponse(responseCode = "500", description = "Error occurred while uploading file"),
+	})
+	public ResponseEntity<String> uploadFile(
+			@RequestParam("file") MultipartFile file,
+			@RequestParam("userId") int userId) {
+		userService.uploadFile(file, userId);
+		return ResponseEntity.ok("File uploaded successfully");
+	}
+
+	@GetMapping(value = "downloadFile/{filename}")
+	@Operation(summary = "Download file", responses = {
+			@ApiResponse(responseCode = "200", description = "File downloaded successfully"),
+			@ApiResponse(responseCode = "404", description = "File not found"),
+			@ApiResponse(responseCode = "500", description = "Error occurred while downloading file"),
+	})
+	public ResponseEntity<byte[]> downloadFile(@PathVariable String filename) {
+		byte[] fileBytes = userService.downloadFile(filename);
+		if (fileBytes != null) {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+			headers.setContentDispositionFormData("attachment", filename);
+			return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
+	@DeleteMapping(value = "deleteFile/{filename}", produces = "application/json")
+	@Operation(summary = "Delete file", responses = {
+			@ApiResponse(responseCode = "200", description = "File deleted successfully"),
+			@ApiResponse(responseCode = "404", description = "File not found or user not found"),
+			@ApiResponse(responseCode = "500", description = "Error occurred while deleting file"),
+	})
+	public ResponseEntity<String> deleteFile(
+			@PathVariable String filename,
+			@RequestParam("userId") int userId) {
+		userService.deleteFile(filename, userId);
+		return ResponseEntity.ok("File deleted successfully");
 	}
 }

@@ -5,8 +5,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
-import java.util.ArrayList;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.List;
 
 @Getter
@@ -39,4 +46,13 @@ public class UserEntity {
 	@Column(nullable = false)
 	@ElementCollection
 	private List<Long> matchedUsers;
+
+	@Column(nullable = false)
+	@ElementCollection
+	private List<String> mediaFilenames;
+
+	@Column(nullable = false)
+	@ElementCollection
+	@Enumerated(EnumType.STRING)
+	private List<MusicalInstrument> musicalInstruments;
 }
