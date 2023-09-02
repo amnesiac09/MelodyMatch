@@ -1,0 +1,31 @@
+#not_found {
+    width: 55vw;
+    height: 75vh;
+
+    & > p:nth-child(1) {
+        font-size: 4.5rem;
+        margin-bottom: 30px;
+    }
+    & > p:nth-child(2) {
+        font-size: 2.5rem;
+        margin-bottom: 50px;
+        width: 30vw;
+    }
+
+    & > button {
+        display: inline;
+        font-size: 1rem;
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 3px;
+        transition: 300ms;
+        background-color: transparent;
+        border: 1px solid black;
+
+        &:hover {
+            background-color: #37AF91;
+            color: #F0F2F4;
+        }
+    }
+
+}

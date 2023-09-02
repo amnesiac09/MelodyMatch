@@ -1,0 +1,19 @@
+#footer {
+    @include dimension(100%, auto);
+    background-color: white;
+    padding: 50px 250px;
+    position: relative;
+    // position: absolute;
+    // left: 0;
+    // bottom: 0;
+    
+    & > div {
+        @include flexbox(space-between, center);
+        margin-left: 5vw;
+
+    }
+    
+    &.loggedIn > div {
+        margin-left: 18vw;
+    }
+}

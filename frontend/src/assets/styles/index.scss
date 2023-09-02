@@ -1,0 +1,38 @@
+// Base
+@import "./partials/base/variables";
+@import "./partials/base/mixins";
+@import "./partials/base/reset";
+@import "./partials/base/common";
+
+
+// Components
+@import "./partials/components/footer";
+@import "./partials/components/sidebar";
+
+@import "./partials/components/navbar_popup";
+@import "./partials/components/newmatches_popup";
+
+// @import "./partials/components/backtop";
+// @import "./partials/components/form";
+// @import "./partials/components/searchbar";
+// @import "./partials/components/filterbar";
+// @import "./partials/components/quantity_box";
+// @import "./partials/components/empty_view";
+
+
+// // Pages
+@import "./partials/pages/intro";
+@import "./partials/pages/signUp";
+@import "./partials/pages/signIn";
+@import "./partials/pages/notFound";
+@import "./partials/pages/explore";
+@import "./partials/pages/profile";
+@import "./partials/pages/chat";
+
+// @import "./partials/pages/products";
+// @import "./partials/pages/product_details";
+// @import "./partials/pages/product_summary";
+// @import "./partials/pages/cart";
+// @import "./partials/pages/related";
+// @import "./partials/pages/services";
+// @import "./partials/pages/error_page";

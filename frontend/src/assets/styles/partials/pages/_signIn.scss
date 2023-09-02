@@ -1,0 +1,63 @@
+#sign_in {
+    @include flexbox(center, start);
+    flex-direction: column;
+    gap: 25px;
+
+    & > .title {
+        font-size: 45px;
+        font-weight: normal;
+    }
+
+
+    form {
+        @include flexbox(center, start);
+        flex-direction: column;
+        gap: 25px;
+        width: 25vw;
+
+        & > div {
+            @include flexbox(center, unset);
+            flex-direction: column;
+            gap: 3px;
+            width: 100%;
+        }
+
+        input {
+            width: 100%;
+            background-color: transparent;
+            padding: 10px;
+            border: 1px solid black;
+
+            -webkit-appearance: none;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        button {
+            background-color: transparent;
+            border: 1px solid black;
+            padding: 10px;
+            transition: 300ms;
+
+            &:hover {
+                background-color: #37AF91;
+                color: #F0F2F4;
+            }
+        }
+    }
+
+    a {
+        transition: 200ms;
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+
+    .error {
+        color: red;
+        font-size: 15px;
+    }
+}

@@ -1,0 +1,52 @@
+#intro {
+    width: 100vw;
+    height: 100vh;
+    @include dimension(40%, auto);
+    @include flexbox(center, center);
+    flex-direction: column;
+    gap: 30px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+
+    & > img {
+        filter: invert(48%) sepia(13%) saturate(3207%) hue-rotate(130deg) brightness(95%) contrast(80%);
+        animation: reminder;
+        animation-duration: 4000ms;
+        animation-iteration-count: infinite;
+        animation-delay: 500ms;
+    }
+
+    & > h2 {
+        text-align: center;
+        opacity: 0.6;
+        text-transform: uppercase;
+    }
+
+    & > button {
+        border: 1px solid black;
+        padding: 10px 20px;
+        transition: 300ms;
+
+        &:hover {
+            background-color: #37AF91;
+            color: #F0F2F4;
+        }
+    }
+}
+
+@keyframes reminder {
+    0% {
+        opacity: 1;
+    }
+    30% {
+        opacity: 1;
+    }
+    50%{
+        opacity: 0;
+    } 
+    100% {
+        opacity: 1;
+    }
+}

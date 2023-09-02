@@ -1,0 +1,187 @@
+#profile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    // padding: 0px 50% 49% 5%;
+    position: relative;
+    .leftPanel {
+        position: absolute;
+        left: 4%;
+        top: 6%;
+        & > p {
+            font-weight: normal;
+            opacity: 0.6;
+            font-size: 20px;
+            margin-bottom: 30px;
+            cursor: pointer;
+
+            &.active {
+                cursor: unset;
+                opacity: 1;
+            }
+        }
+    }
+
+    .rightPanel {
+        .title {
+            font-size: 45px;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: normal;
+        }
+
+        form {
+            @include flexbox(center, center);
+            flex-direction: column;
+            gap: 18px;
+            width: 25vw;
+            
+            & > div {
+                @include flexbox(center, unset);
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+    
+                & > div {
+                    @include flexbox(space-between, center);
+                    gap: 20px;
+    
+                    & > div {
+                        width: 100%;
+                        & > label {
+                            display: block;
+                            margin-bottom: 3px;
+                        }
+                    }
+                }
+            }
+    
+            & > .date > div {
+                width: 50%;
+            } 
+    
+            p {
+                font-size: 17px;
+            }
+    
+            input, select {
+                width: 100%;
+                background-color: transparent;
+                padding: 8px;
+                border: 1px solid black;
+                color: black;
+            }
+    
+            option {
+                background-color: white;
+                padding: 5px;
+            }
+    
+            button {
+                background-color: transparent;
+                border: 1px solid black;
+                padding: 10px;
+                transition: 300ms;
+    
+                &:hover {
+                    background-color: #37AF91;
+                    color: #F0F2F4;
+                }
+            }
+    
+            .required:after {
+                content: '*';
+                color: red;
+                margin-left: 5px;
+            }
+        }
+    }
+    
+    input[type="file"] {
+        display: none;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        display: none;
+    }
+
+    textarea {
+        border: 1px solid black;
+        resize:none;
+        padding: 8px;
+        font-size: 14px;
+    }
+    
+    .custom-file-upload {
+        border: 1px solid #ccc;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .videoContainer {
+        width: 100%;
+        height: 550px;
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        gap: 12px!important;
+
+        & > div {
+            width: 100%;
+            height: 100%;
+
+            & > label {
+                width: 100%;
+                height: 100%;
+                border-radius: 12px;
+                position: relative;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 0px;
+
+                &::before {
+                    content: '+';
+                    position: absolute;
+                    bottom: -5px;
+                    right: -5px;
+                    border-radius: 50%;
+                    background-color: #37AF91;
+                    width: 25px;
+                    height: 25px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 22px;
+                    color: white;
+                }
+
+                video {
+                    border-radius: 12px;
+                    // width: 100%;
+                    // height: calc(500px/3);
+                    display: none;
+                    width: 100%;
+                    max-height: calc((550px - 24px)/3);
+                }
+            }
+
+            &.active {
+                label::before {
+                    content: 'x';
+                }
+                img {
+                    display: unset;
+                }
+            }
+        }
+    }
+    .errorMessage {
+        color: red;
+    }
+    .successMessage {
+        color: green;
+    }
+}
