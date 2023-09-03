@@ -47,46 +47,6 @@ function App() {
     // }
   }, [location])
 
-  // const connection = useRef<WebSocket>();
-  // const shouldKeepWSAlive = useRef<boolean>(false);
-
-  useEffect(() => {
-    // Replace 'wss://your-websocket-server-url' with your WebSocket server URL
-    // const socket = new WebSocket('ws://localhost:8080/ws');
-
-    // // WebSocket event listeners
-    // socket.addEventListener('open', (event) => {
-    //   console.log('WebSocket connection opened:', event);
-    // });
-
-    // socket.addEventListener('message', (event) => {
-    //   console.log('WebSocket message received:', event.data);
-    //   // Handle incoming messages here
-    // });
-
-    // socket.addEventListener('close', (event) => {
-    //   console.log('WebSocket connection closed:', event);
-    // });
-
-    // Clean up the WebSocket connection when the component unmounts
-    // return () => {
-    //   socket.close();
-    // };
-    var sock = new SockJS('http://localhost:8080/ws');
-    sock.onopen = function() {
-      console.log('successful');
-      sock.send('test');
-    };
-
-    sock.onmessage = function(e) {
-      console.log('message', e.data);
-      sock.close();
-    };
-
-    sock.onclose = function() {
-      console.log('unsuccessful');
-    };
-  }, []);
 
   // const socket = io.connect();
   // let a = new WebSocket("ws://localhost:8080/")
