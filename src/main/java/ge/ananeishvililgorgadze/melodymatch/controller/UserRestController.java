@@ -1,6 +1,5 @@
 package ge.ananeishvililgorgadze.melodymatch.controller;
 
-import com.nimbusds.jose.util.Pair;
 import ge.ananeishvililgorgadze.melodymatch.domain.dto.UserDTO;
 import ge.ananeishvililgorgadze.melodymatch.mapper.UserMapper;
 import ge.ananeishvililgorgadze.melodymatch.service.UserService;
@@ -11,15 +10,18 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 
 @RestController
 @RequestMapping("/api/user")
@@ -110,21 +112,22 @@ public class UserRestController {
 		return ResponseEntity.ok("File uploaded successfully");
 	}
 
-	@GetMapping(value = "downloadFile/{filename}")
+	@GetMapping(value = "getFileUrl/{filename}")
 	@Operation(summary = "Download file", responses = {
-			@ApiResponse(responseCode = "200", description = "File downloaded successfully"),
+			@ApiResponse(responseCode = "200", description = "File URL retrieved successfully"),
 			@ApiResponse(responseCode = "404", description = "File not found"),
-			@ApiResponse(responseCode = "500", description = "Error occurred while downloading file"),
+			@ApiResponse(responseCode = "500", description = "Internal server error"),
 	})
-	public ResponseEntity<byte[]> downloadFile(@PathVariable String filename) {
-		byte[] fileBytes = userService.downloadFile(filename);
-		if (fileBytes != null) {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-			headers.setContentDispositionFormData("attachment", filename);
-			return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
-		} else {
-			return ResponseEntity.notFound().build();
+	public ResponseEntity<?> downloadFile(@PathVariable String filename) {
+		try {
+			String fileUrl = userService.getFileUrl(filename);
+			if (fileUrl != null && !fileUrl.isEmpty()) {
+				return ResponseEntity.ok(fileUrl);
+			} else {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+			}
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
 

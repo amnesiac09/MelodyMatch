@@ -15,7 +15,7 @@ public interface UserService {
 
 	void uploadFile(MultipartFile file, int userId);
 
-	byte[] downloadFile(String filename);
+	String getFileUrl(String filename);
 
 	void deleteFile(String filename, int userId);
 

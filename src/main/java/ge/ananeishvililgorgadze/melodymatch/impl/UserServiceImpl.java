@@ -2,9 +2,6 @@ package ge.ananeishvililgorgadze.melodymatch.impl;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.util.IOUtils;
 import ge.ananeishvililgorgadze.melodymatch.domain.UserEntity;
 import ge.ananeishvililgorgadze.melodymatch.repository.UserRepository;
 import ge.ananeishvililgorgadze.melodymatch.service.UserService;
@@ -18,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -132,14 +131,14 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public byte[] downloadFile(String filename) {
-		S3Object s3Object = s3Client.getObject(bucketName, filename);
-		S3ObjectInputStream inputStream = s3Object.getObjectContent();
+	public String getFileUrl(String filename) {
 		try {
-			return IOUtils.toByteArray(inputStream);
-		} catch (IOException e) {
+			String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8);
+			return "https://" + bucketName + ".s3.amazonaws.com/" + encodedFilename;
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 		return null;
 	}
 
