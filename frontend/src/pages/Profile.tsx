@@ -10,6 +10,10 @@ const Profile = () => {
 
     const ref = useRef() as MutableRefObject<HTMLInputElement>;
 
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+    }
+
     return (
         <div id='profile'>
             <div className='leftPanel'>
@@ -23,7 +27,7 @@ const Profile = () => {
                 { activeContent === contents[0] ?
                     <div>
                         <h1 className='title'>Account Details</h1>
-                        <form>
+                        <form onSubmit={(e) => handleSubmit(e)}>
                             <div className='full_name'>
                                 <p className='required'>Full Name</p>
                                 <div>
@@ -117,7 +121,7 @@ const Profile = () => {
                     : activeContent === contents[1] ?
                         <div>
                             <h1 className='title'>Personal Details</h1>
-                            <form>
+                            <form onSubmit={(e) => handleSubmit(e)}>
                                 <div className='yourPassions'>
                                     <p className='required'>Passions</p>
                                     <div>
@@ -149,7 +153,7 @@ const Profile = () => {
                         </div> :
                         <div>
                             <h1 className='title'>Content Details</h1>
-                            <form>
+                            <form onSubmit={(e) => handleSubmit(e)}>
                                 <div className='yourPassions'>
                                     <p className='required'>Upload 2 or more videos</p>
                                     <div className='videoContainer'>
@@ -165,7 +169,7 @@ const Profile = () => {
                                         })}
                                     </div>
                                 </div>
-                                <button>Complete</button>
+                                <button>Save</button>
                             </form>
                         </div>
                 }

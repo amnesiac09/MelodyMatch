@@ -5,7 +5,7 @@ import Message from '../assets/images/message.png'
 import Search from '../assets/images/search.png'
 import NavbarPopup from './NavbarPopup'
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
 
@@ -14,6 +14,17 @@ const Sidebar = () => {
     const {isLoggedIn} = useSelector((state: RootState) => state.UsersReducer)
 
     const navigate = useNavigate()
+    const location = useLocation()
+
+    const centerViews = ['explore', 'messages']
+    const [centerView, setCenterView] = useState(centerViews[0])
+
+    const [isViewAs, setIsViewAs] = useState(false)
+
+    useEffect(() => {
+        // execute on location change
+        setIsViewAs(false)
+    }, [location]);
 
     return (
         <>
@@ -22,10 +33,10 @@ const Sidebar = () => {
                     <div className='buttons'>
                         { isLoggedIn &&
                             <>
-                                <button onClick={() => navigate('/explore')}>
+                                <button onClick={() => {navigate('/explore'); setCenterView(centerViews[0]);}}>
                                     <img src={Search} />
                                 </button>
-                                <button onClick={() => navigate('/chat')}>
+                                <button onClick={() => {navigate('/chat'); setCenterView(centerViews[1]);}}>
                                     <img src={Message} />
                                 </button>
                             </>
@@ -38,6 +49,32 @@ const Sidebar = () => {
                         <img src={Logo} />
                     </a>
                 </div>
+
+                {isLoggedIn &&
+                    <div className='center_part'>
+                        {centerView === 'explore' ? <button onClick={() => {setIsViewAs(!isViewAs)}}>
+                                {!isViewAs ? 'view as' : 'exit view as'}
+                            </button>
+                            : <div className='messagesContainer'>
+                                <div>
+                                    <p>Maryam</p>
+                                    <p>↩ How are you?</p>
+                                </div>
+                                <div>
+                                    <p>Maryam</p>
+                                    <p>↪ How are you?</p>
+                                </div>
+                                <div>
+                                    <p>Maryam</p>
+                                    <p>↪ How are you?</p>
+                                </div>
+                                <div>
+                                    <p>Maryam</p>
+                                    <p>↪ How are you?</p>
+                                </div>
+                            </div> }
+                    </div>}
+
                 <div className='bottom_part'>
                     <div>
                         <button>

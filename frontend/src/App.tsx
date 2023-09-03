@@ -1,9 +1,27 @@
-import React, {useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getUser } from './redux/actions/userActions';
+import logo from './assets/images/logo.png'
 
-import {Explore, Intro, NotFound, Profile, SignIn, SignUp} from "./pages"
-import {Route, Routes, useLocation} from "react-router-dom";
-import {Footer, Sidebar} from "./components"
+import {
+  Intro,
+  Profile,
+  SignUp,
+  SignIn,
+  NotFound,
+  Explore,
+  Chat
+} from "./pages"
+import {
+  Routes,
+  Route,
+  useLocation
+} from "react-router-dom";
+import {
+  Sidebar,
+  Footer
+} from "./components"
+import { logInUser } from './redux/actions/userActions';
 
 
 function App() {
@@ -34,13 +52,14 @@ function App() {
             <Route path="/registration" element={<SignUp />}/>
             <Route path="/login" element={!isLoggedIn ? <SignIn /> : <Profile />}/>
             <Route path="/explore" element={isLoggedIn ? <Explore /> : <SignIn />}/>
+            <Route path="/chat" element={isLoggedIn ? <Chat /> : <SignIn />}/>
             <Route path="*" element={<NotFound />}/>
           </Routes>
         </div>
         {
             location.pathname !== '/' && <>
               <Sidebar />
-              {location.pathname !== '/explore' && <Footer />}
+              {location.pathname !== '/explore' && location.pathname !== '/chat' && <Footer />}
             </>
         }
       </>

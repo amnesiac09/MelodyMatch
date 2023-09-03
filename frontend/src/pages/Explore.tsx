@@ -26,8 +26,6 @@ const Explore = () => {
                         )
                     })
                 }
-                {/* <img src="https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_4201d662-697d-4228-b04e-029a0705ddd2.webp" alt="" /> */}
-                {/* <img src="https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_24fc451c-57cd-42a4-aced-03bc040f3201.webp" alt="" /> */}
                 <div className='arrows'>
                     <div onClick={() => setActiveVideoIndex(activeVideoIndex-1)} className={`arrowLeft ${activeVideoIndex !== 0 ? 'active' : ''}`}>
                         <img src={ArrowLeft} alt="" />
