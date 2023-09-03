@@ -18,7 +18,6 @@
             cursor: pointer;
 
             &.active {
-                font-weight: bold;
                 cursor: unset;
                 opacity: 1;
             }
@@ -30,6 +29,7 @@
             font-size: 45px;
             text-align: center;
             margin-bottom: 25px;
+            font-weight: normal;
         }
 
         form {
@@ -37,17 +37,17 @@
             flex-direction: column;
             gap: 18px;
             width: 25vw;
-
+            
             & > div {
                 @include flexbox(center, unset);
                 flex-direction: column;
                 gap: 10px;
                 width: 100%;
-
+    
                 & > div {
                     @include flexbox(space-between, center);
                     gap: 20px;
-
+    
                     & > div {
                         width: 100%;
                         & > label {
@@ -57,33 +57,40 @@
                     }
                 }
             }
-
+    
             & > .date > div {
                 width: 50%;
-            }
-
+            } 
+    
             p {
                 font-size: 17px;
             }
-
+    
             input, select {
                 width: 100%;
                 background-color: transparent;
                 padding: 8px;
-                border: 1px solid white;
-                color: white;
+                border: 1px solid black;
+                color: black;
             }
-
+    
             option {
-                background-color: grey;
+                background-color: white;
                 padding: 5px;
             }
-
+    
             button {
-                background-color: black;
+                background-color: transparent;
+                border: 1px solid black;
                 padding: 10px;
+                transition: 300ms;
+    
+                &:hover {
+                    background-color: #37AF91;
+                    color: #F0F2F4;
+                }
             }
-
+    
             .required:after {
                 content: '*';
                 color: red;
@@ -91,7 +98,7 @@
             }
         }
     }
-
+    
     input[type="file"] {
         display: none;
     }
@@ -100,6 +107,13 @@
         display: none;
     }
 
+    textarea {
+        border: 1px solid black;
+        resize:none;
+        padding: 8px;
+        font-size: 14px;
+    }
+    
     .custom-file-upload {
         border: 1px solid #ccc;
         display: inline-block;
@@ -134,13 +148,14 @@
                     bottom: -5px;
                     right: -5px;
                     border-radius: 50%;
-                    background-color: #1274AC;
+                    background-color: #37AF91;
                     width: 25px;
                     height: 25px;
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     font-size: 22px;
+                    color: white;
                 }
 
                 video {
@@ -162,5 +177,11 @@
                 }
             }
         }
+    }
+    .errorMessage {
+        color: red;
+    }
+    .successMessage {
+        color: green;
     }
 }

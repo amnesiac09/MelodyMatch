@@ -1,10 +1,12 @@
 #navbar_popup {
     width: 100vw;
     height: 100vh;
-    background-color: rgba(17, 16, 19, 0.93);
+    background-color: rgba(61, 168, 129, 0.239);
+    backdrop-filter: blur(4px);
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 10;
 
     & > button {
         background-color: transparent;
@@ -14,9 +16,10 @@
         // margin-top: 3vh;
         // margin-left: 1.15vw;
         transition: 300ms;
+        border: 1px solid black;
 
         &:hover {
-            background-color: var(--grey-color);
+            transform: scale(1.04);
         }
 
         & > img {
@@ -33,15 +36,15 @@
         height: 78vh;
     }
 
-
+    
     ul {
         counter-reset: section; /* Increment the value of section counter by 1 */
     }
-
+    
     li {
         font-size: 10vh;
         margin: 5vh;
-        font-weight: bold;
+        color: rgb(39, 39, 39);
 
         &:before {
             counter-increment: section; /* Increment the value of section counter by 1 */
@@ -50,9 +53,10 @@
             vertical-align: top;
             line-height: 20px;
             color: grey;
+            font-weight: bold;
             // transform: translateY(10px);
         }
-
+    
     }
     a {
         transition: 300ms;
@@ -64,7 +68,7 @@
 
     &.loggedIn {
         & > button {
-            margin: 5.5vh 14.8vw 0px 14.8vw;
+            margin: 4.7vh 14.8vw 0px 14.9vw;        
         }
     }
 }

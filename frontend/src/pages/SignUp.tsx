@@ -2,7 +2,7 @@ import React, { MutableRefObject, useRef, useState } from 'react';
 
 const SignUp = () => {
 
-    const [activeStep, setActiveStep] = useState(1)
+    const [activeStep, setActiveStep] = useState(3)
     const steps: any = ['Account', 'Personal', 'Content']
     const [videosUploadedAmount, setVideosUploadedAmount] = useState(0)
     const videoMaxAmount = 9

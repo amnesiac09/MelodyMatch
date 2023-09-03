@@ -5,6 +5,7 @@
 
     & > .title {
         font-size: 45px;
+        font-weight: normal;
     }
 
     // .stepContent {
@@ -19,7 +20,7 @@
         flex-direction: column;
         gap: 18px;
         width: 25vw;
-
+        
         & > div {
             @include flexbox(center, unset);
             flex-direction: column;
@@ -42,7 +43,7 @@
 
         & > .date > div {
             width: 50%;
-        }
+        } 
 
         & > .terms {
             flex-direction: row;
@@ -65,24 +66,38 @@
             width: 100%;
             background-color: transparent;
             padding: 8px;
-            border: 1px solid white;
-            color: white;
+            border: 1px solid black;
+            color: black;
         }
 
         option {
-            background-color: grey;
+            background-color: white;
             padding: 5px;
         }
 
         button {
-            background-color: black;
+            background-color: transparent;
+            border: 1px solid black;
             padding: 10px;
+            transition: 300ms;
+
+            &:hover {
+                background-color: #37AF91;
+                color: #F0F2F4;
+            }
         }
 
         .required:after {
             content: '*';
             color: red;
             margin-left: 5px;
+        }
+
+        textarea {
+            border: 1px solid black;
+            resize:none;
+            padding: 8px;
+            font-size: 14px;
         }
     }
 
@@ -99,9 +114,9 @@
             flex-direction: column;
             align-items: center;
             gap: 6px;
-
+            
             & > div {
-                border: 1.5px solid white;
+                outline: 1px solid black;                
                 color: white;
                 background-color: grey;
                 padding: 5px 10px;
@@ -116,7 +131,7 @@
             }
 
             &.active > div {
-                background-color: #1274AC;
+                background-color:  #37AF91;;
             }
             &.active > p {
                 opacity: 1;
@@ -129,17 +144,17 @@
             top: 25%;
             left: 10%;
             width: 80%;
-            height: 1px;
+            height: 1.5px;
         }
 
         &.step1::before {
-            background-color: white;
+            background-color: grey;
         }
         &.step2::before {
-            background-image: linear-gradient(to right, #1274AC 50%, white 50%);
+            background-image: linear-gradient(to right, #37AF91 50%, grey 50%); 
         }
         &.step3::before {
-            background-color: #1274AC;
+            background-color:  #37AF91;;
         }
     }
 
@@ -150,7 +165,7 @@
     input::-webkit-inner-spin-button {
         display: none;
     }
-
+    
     .custom-file-upload {
         border: 1px solid #ccc;
         display: inline-block;
@@ -184,13 +199,14 @@
                     bottom: -5px;
                     right: -5px;
                     border-radius: 50%;
-                    background-color: #1274AC;
+                    background-color:  #37AF91;;
                     width: 25px;
                     height: 25px;
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     font-size: 22px;
+                    color: white;
                 }
 
                 video {
@@ -212,6 +228,10 @@
                 }
             }
         }
+    }
+    .error {
+        color: red;
+        font-size: 15px;
     }
 
 }
