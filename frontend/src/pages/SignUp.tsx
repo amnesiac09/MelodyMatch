@@ -2,7 +2,7 @@ import React, { MutableRefObject, useRef, useState } from 'react';
 
 const SignUp = () => {
 
-    const [activeStep, setActiveStep] = useState(3)
+    const [activeStep, setActiveStep] = useState(1)
     const steps: any = ['Account', 'Music', 'Content']
     const [videosUploadedAmount, setVideosUploadedAmount] = useState(0)
     const videoMaxAmount = 9
@@ -24,6 +24,7 @@ const SignUp = () => {
         setVideosUploadedAmount(videosUploadedAmount+1)
         let target = e.target as HTMLInputElement
         let activeDiv = ref.current.querySelector(`div:nth-child(${videosUploadedAmount + 1})`) as HTMLDivElement
+        console.log(activeDiv)
         let imgTag = activeDiv.querySelector('img') as HTMLImageElement
         activeDiv.classList.add('active')
         imgTag.src = 'https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_24fc451c-57cd-42a4-aced-03bc040f3201.webp'
@@ -86,7 +87,8 @@ const SignUp = () => {
                         <p className='required'>City</p>
                         <div>
                             <div>
-                                <select name="city" id="">
+                                <select name="city" id="" required>
+                                    <option disabled selected hidden value="">Select...</option>
                                     <option value="tbilisi">Tbilisi</option>
                                     <option value="gori">Gori</option>
                                     <option value="batumi">Batumi</option>
@@ -107,17 +109,29 @@ const SignUp = () => {
                             </div>
                         </div>
                     </div>
+                    <div className='gender'>
+                        <p className='required'>Gender</p>
+                        <div>
+                            <div>
+                                <select name="gender" id="" required>
+                                    <option disabled selected hidden value="">Select...</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     <div className='date'>
                         <p className='required'>Date Of Birth</p>
                         <div>
                             <div>
-                                <input placeholder='DD' type="text" name="day" required/>
+                                <input placeholder='DD' type="number" name="day" required min={1} max={31} />
                             </div>
                             <div>
-                                <input placeholder='MM' type="text" name="month" required/>
+                                <input placeholder='MM' type="number" name="month" required min={1} max={12}/>
                             </div>
                             <div>
-                                <input placeholder='YYYY' type="text" name="year" required/>
+                                <input placeholder='YYYY' type="number" name="year" required min={1900} max={new Date().getFullYear()}/>
                             </div>
                         </div>
                     </div>
@@ -170,7 +184,7 @@ const SignUp = () => {
                                 return (
                                     <div>
                                         <label htmlFor="file" className="custom-file-upload">
-                                            <img src=""/>
+                                            <video src=""/>
                                         </label>
                                         <input type="file" id='file' onChange={(e: React.ChangeEvent) => handleUpload(e)} />
                                     </div>

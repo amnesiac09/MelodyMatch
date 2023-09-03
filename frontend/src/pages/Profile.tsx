@@ -1,12 +1,12 @@
 import React from 'react';
 
-const Home = () => {
+const Profile = () => {
 
     return (
         <div id='home'>
-            home
+            Profile
         </div>
     )
 };
 
-export default Home;
+export default Profile;

@@ -7,7 +7,7 @@ import ArrowRight from '../assets/images/arrowRight.png'
 
 const Explore = () => {
 
-    const [activeVideoIndex, setActiveVideoIndex] = useState(2)
+    const [activeVideoIndex, setActiveVideoIndex] = useState(0)
 
     const videos = [
         'https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_4201d662-697d-4228-b04e-029a0705ddd2.webp',
@@ -21,7 +21,7 @@ const Explore = () => {
                 {
                     videos.map((item: string, index:number) => {
                         return (
-                            activeVideoIndex === index && <img src={item} alt="" />
+                            activeVideoIndex === index && <video src={'https://www.w3schools.com/tags/movie.ogg'} autoPlay={true} />
                             // <img src={item} alt="" className={activeVideoIndex === index ? 'active': ''} />
                         )
                     })
@@ -69,6 +69,7 @@ const Explore = () => {
                         </div>
                     </div>
                     {/* <div className=''>
+
                 </div> */}
                 </div>
             </div>

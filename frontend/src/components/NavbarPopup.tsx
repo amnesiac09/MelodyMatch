@@ -1,21 +1,24 @@
 import React from 'react';
 import Close from '../assets/images/close.png'
+import { useSelector } from 'react-redux';
 
 const NavbarPopup: React.FC<{
     setVisible: React.Dispatch<React.SetStateAction<boolean>>,
-}> = (
-    {setVisible
-    }) => {
+}> = ({
+          setVisible
+      }) => {
+
+    const {isLoggedIn} = useSelector((state: RootState) => state.UsersReducer)
 
     return (
-        <nav id='navbar_popup'>
+        <nav id='navbar_popup' className={`${isLoggedIn ? 'loggedIn' : ''}`} >
             <button onClick={() => setVisible(false)}>
                 <img src={Close} />
             </button>
             <div className='links'>
                 <ul>
                     <li>
-                        <a href="/404">Profile</a>
+                        <a href="/profile">Profile</a>
                     </li>
                     <li>
                         <a href="/404">About</a>
