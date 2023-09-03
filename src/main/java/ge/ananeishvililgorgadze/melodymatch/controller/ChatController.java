@@ -41,7 +41,6 @@ public class ChatController {
             @ApiResponse(responseCode = "400", description = "One of the query parameters has a bad value"),
             @ApiResponse(responseCode = "500", description = "Error occurred while sending message"),
     })
-    @CrossOrigin
     public ResponseEntity<String> sendMessage(@Payload MessageEntity chatMessage) {
         messageService.sendMessage(chatMessage);
         messageTemplate.convertAndSend("/topic/public", chatMessage);
@@ -55,7 +54,6 @@ public class ChatController {
             @ApiResponse(responseCode = "400", description = "One of the query parameters has a bad value"),
             @ApiResponse(responseCode = "500", description = "Error occurred while getting messages"),
     })
-    @CrossOrigin
     public List<MessageDTO> getMessages(@RequestParam("id1") long id1, @RequestParam("id2") long id2) {
         return messageMapper.toDTOs(messageService.getMessages(id1, id2));
     }

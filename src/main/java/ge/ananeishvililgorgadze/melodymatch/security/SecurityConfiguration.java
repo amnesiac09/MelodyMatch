@@ -31,6 +31,10 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -145,5 +149,44 @@ public class SecurityConfiguration {
 	@Qualifier("refreshTokenDecoder")
 	JwtDecoder refreshTokenDecoder() throws JOSEException {
 		return NimbusJwtDecoder.withPublicKey(refreshTokenKey.toRSAPublicKey()).build();
+	}
+
+	@Bean
+	public CorsFilter corsFilter() {
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = new CorsConfiguration();
+
+		// Allow requests from http://localhost:3000
+		config.addAllowedOrigin("http://localhost:3000");
+
+		// Allow all HTTP methods
+		config.addAllowedMethod("*");
+
+		// Allow all headers
+		config.addAllowedHeader("*");
+
+		// Allow credentials (e.g., cookies, authentication headers)
+		config.setAllowCredentials(true); // Ensure credentials are allowed
+
+		source.registerCorsConfiguration("/**", config);
+
+		return new CorsFilter(source);
+	}
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = new CorsConfiguration();
+
+		config.addAllowedOrigin("http://localhost:3000");
+
+		config.addAllowedMethod("*");
+
+		config.addAllowedHeader("*");
+
+		config.setAllowCredentials(true);
+
+		source.registerCorsConfiguration("/**", config);
+
+		return source;
 	}
 }
