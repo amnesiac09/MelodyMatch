@@ -2,7 +2,7 @@ import { GET_USERS, CREATE_USER, LOGIN_USER, EDIT_USER, RESET_PASSWORD, FORGET_P
 
 const initialState = {
     users: [],
-    isLoggedIn: false,
+    isLoggedIn: true,
     userInfo: {},
     token: ''
 }

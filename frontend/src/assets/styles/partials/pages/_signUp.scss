@@ -7,12 +7,12 @@
         font-size: 45px;
     }
 
-    .stepContent {
-        display: none;
-        &.active {
-            display: unset;
-        }
-    }
+    // .stepContent {
+    //     display: none;
+    //     &.active {
+    //         display: unset;
+    //     }
+    // }
 
     form {
         @include flexbox(center, center);

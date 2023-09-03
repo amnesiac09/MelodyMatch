@@ -1,26 +1,9 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { getUser } from './redux/actions/userActions';
-import logo from './assets/images/logo.png'
+import React, {useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 
-import {
-  Intro,
-  Profile,
-  SignUp,
-  SignIn,
-  NotFound,
-  Explore
-} from "./pages"
-import {
-  Routes,
-  Route,
-  useLocation
-} from "react-router-dom";
-import {
-  Sidebar,
-  Footer
-} from "./components"
-import { logInUser } from './redux/actions/userActions';
+import {Explore, Intro, NotFound, Profile, SignIn, SignUp} from "./pages"
+import {Route, Routes, useLocation} from "react-router-dom";
+import {Footer, Sidebar} from "./components"
 
 
 function App() {
@@ -32,13 +15,13 @@ function App() {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    setTimeout(() => {
-      let data: ILogInUserApiReq = {
-        usernameOrEmail: 'dasdas',
-        password: '23123'
-      }
-      dispatch(logInUser(data) as any)
-    }, 2000)
+    // setTimeout(() => {
+    //   let data: ILogInUserApiReq = {
+    //     usernameOrEmail: 'dasdas',
+    //     password: '23123'
+    //   }
+    //   dispatch(logInUser(data) as any)
+    // }, 2000)
   }, [])
 
   return (
@@ -47,7 +30,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Intro />}/>
             <Route path="/profile" element={isLoggedIn ? <Profile /> : <SignIn />}/>
-            <Route path="/registration" element={!isLoggedIn ? <SignUp /> : <Profile />}/>
+            {/* <Route path="/registration" element={!isLoggedIn ? <SignUp /> : <Profile />}/> */}
+            <Route path="/registration" element={<SignUp />}/>
             <Route path="/login" element={!isLoggedIn ? <SignIn /> : <Profile />}/>
             <Route path="/explore" element={isLoggedIn ? <Explore /> : <SignIn />}/>
             <Route path="*" element={<NotFound />}/>
