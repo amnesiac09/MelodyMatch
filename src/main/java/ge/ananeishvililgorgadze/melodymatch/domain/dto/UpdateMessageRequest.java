@@ -13,4 +13,6 @@ public class UpdateMessageRequest {
     private long messageId;
     private String content;
     private boolean delete;
+    private String senderNickname;
+    private String receiverNickname;
 }
