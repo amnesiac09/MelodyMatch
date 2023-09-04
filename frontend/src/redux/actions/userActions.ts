@@ -9,7 +9,7 @@ export const addUser = (data: IUser) => async (dispatch: Dispatch<Action>) => {
     })
 };
 
-export const logInUser = (data: ILogInUserApiReq) => async (dispatch: Dispatch<Action>) => {
+export const logInUser = (data: any) => async (dispatch: Dispatch<Action>) => {
     dispatch({
         type: LOGIN_USER,
         payload: data
@@ -50,3 +50,4 @@ export const getUser = (data: {userInfo: IUser, token: string}) => async (dispat
         payload: data
     });
 };
+

@@ -1,23 +1,77 @@
 import React, { MutableRefObject, useRef, useState } from 'react';
+import * as api from '../api/api'
+import { useNavigate } from 'react-router-dom';
+import {useDispatch, useSelector} from "react-redux"
+import { addUser } from '../redux/actions/userActions';
 
 const SignUp = () => {
+
+    const navigate = useNavigate()
+    const dispatch = useDispatch();
 
     const [activeStep, setActiveStep] = useState(1)
     const steps: any = ['Account', 'Personal', 'Content']
     const [videosUploadedAmount, setVideosUploadedAmount] = useState(0)
     const videoMaxAmount = 9
+    const [error, setError] = useState("")
+    const [state, setState] = useState({
+        name: "",
+        username: "",
+        email: "",
+        password: "",
+        cf_password: "",
+        bio: "",
+    })
 
     const ref = useRef() as MutableRefObject<HTMLInputElement>;
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleChange = (name: string, value: string) => {
+        setState({
+            ...state,
+            [name]: value
+        })
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        let isCompleted: boolean = activeStep === 3
-        if(!isCompleted) {
-            setActiveStep(activeStep+1)
-        } else {
-            alert('submit')
+        if(state.password !== state.cf_password) {
+            return setError('Passwords do not match!')
         }
+
+        let isCompleted: boolean = activeStep === 3
+        // if(!isCompleted) {
+        //     setActiveStep(activeStep+1)
+        // } else {
+        const data = {
+            id: 0,
+            username: state.username,
+            password: state.password,
+            name: state.name,
+            email: state.email,
+            bio: state.bio,
+            likedUsers: [
+
+            ],
+            matchedUsers: [
+
+            ],
+            mediaFilenames: [
+
+            ],
+            newMatchedUsersCount: 0
+        }
+        try {
+            setError("")
+            const res = await api.addUser(data)
+            if(res.data) {
+                dispatch(addUser(res.data) as any);
+                navigate("/explore")
+            }
+        } catch (err: any) {
+            setError("Something went wrong!")
+        }
+        // }
     }
 
     const handleUpload = (e: React.ChangeEvent) => {
@@ -54,7 +108,10 @@ const SignUp = () => {
                             <div>
                                 <div>
                                     <label htmlFor="firstName">First Name</label>
-                                    <input type="text" name="firstName" id="firstName" required/>
+                                    <input type="text" name="name" id="firstName" required
+                                           value={state.name}
+                                           onChange={(e) => handleChange(e.target.name, e.target.value)}
+                                    />
                                 </div>
                                 <div>
                                     <label htmlFor="lastName">Last Name</label>
@@ -67,7 +124,10 @@ const SignUp = () => {
                             <div>
                                 <div>
                                     <label htmlFor="email">Enter Email</label>
-                                    <input type="email" name="email" id="email" required/>
+                                    <input type="email" name="email" id="email" required
+                                           value={state.email}
+                                           onChange={(e) => handleChange(e.target.name, e.target.value)}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -76,11 +136,17 @@ const SignUp = () => {
                             <div>
                                 <div>
                                     <label htmlFor="password">Enter Password</label>
-                                    <input type="password" name="password" id="password" required/>
+                                    <input type="password" name="password" id="password" required
+                                           value={state.password}
+                                           onChange={(e) => handleChange(e.target.name, e.target.value)}
+                                    />
                                 </div>
                                 <div>
                                     <label htmlFor="confirmPassword">Confirm Password</label>
-                                    <input type="password" name="confirmPassword" id="confirmPassword" required/>
+                                    <input type="password" name="cf_password" id="confirmPassword" required
+                                           value={state.cf_password}
+                                           onChange={(e) => handleChange(e.target.name, e.target.value)}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -102,7 +168,10 @@ const SignUp = () => {
                             <div>
                                 <div>
                                     <label htmlFor="username" className='required'>Username</label>
-                                    <input type="text" name="username" id="username" required/>
+                                    <input type="text" name="username" id="username" required
+                                           value={state.username}
+                                           onChange={(e) => handleChange(e.target.name, e.target.value)}
+                                    />
                                 </div>
                                 <div>
                                     <label htmlFor="phoneNumber">Phone Number</label>
@@ -140,6 +209,7 @@ const SignUp = () => {
                             <input type="checkbox" id='terms' required/>
                             <label htmlFor="terms" className='required'>I agree to the MelodyMatch rules policy.</label>
                         </div>
+                        {error && <p className='error'>{error}</p>}
 
                         <button>Submit</button>
                     </form>

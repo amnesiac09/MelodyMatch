@@ -4,6 +4,10 @@ import GenderWoman from '../assets/images/genderWoman.png'
 import Home from '../assets/images/home.png'
 import ArrowLeft from '../assets/images/arrowLeft.png'
 import ArrowRight from '../assets/images/arrowRight.png'
+import Like from '../assets/images/like.png'
+import Unlike from '../assets/images/unlike.png'
+import Info from '../assets/images/info.png'
+import ArrowDown from '../assets/images/arrowDown.png'
 
 const Explore = () => {
 
@@ -15,13 +19,19 @@ const Explore = () => {
         'https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_4201d662-697d-4228-b04e-029a0705ddd2.webp',
     ]
 
+    const handleDrag = (e: React.DragEvent) => {
+        console.log(e)
+    }
+
+    const [isInfoVisible, setIsInfoVisible] = useState(false)
+
     return (
-        <div id='explore'>
-            <div className='videoContainer'>
+        <div id='explore' className={isInfoVisible ? 'isInfoVisible': ''}>
+            <div className='videoContainer' draggable onDrag={(e) => handleDrag(e)}>
                 {
                     videos.map((item: string, index:number) => {
                         return (
-                            activeVideoIndex === index && <video src={'https://www.w3schools.com/tags/movie.ogg'} autoPlay={true} />
+                            activeVideoIndex === index && <img src={'https://images.pexels.com/photos/10434979/pexels-photo-10434979.jpeg?cs=srgb&dl=pexels-cottonbro-studio-10434979.jpg&fm=jpg'} />
                             // <img src={item} alt="" className={activeVideoIndex === index ? 'active': ''} />
                         )
                     })
@@ -43,10 +53,21 @@ const Explore = () => {
                         })
                     }
                 </div>
+                {!isInfoVisible &&
+                    <div className='shortInfo'>
+                        <div>
+                            <p>Maryami</p>
+                            <img src={Info} alt="" onClick={() => setIsInfoVisible(true)} />
+                        </div>
+                    </div>
+                }
             </div>
-            <div className='info'>
+            {isInfoVisible && <div className='info'>
                 <div className='basic'>
-                    <p className='nameAndAge'>aleko 22</p>
+                    <div className='nameAndAgeContainer'>
+                        <p className='nameAndAge'>aleko 22</p>
+                        <img src={ArrowDown} alt="" className='close' onClick={() => {setIsInfoVisible(false); document.querySelector('#explore')?.scrollTo({top: 0})}} />
+                    </div>
                     <div className='gender'>
                         <img src={GenderMan} alt="" />
                         <p>Man</p>
@@ -56,9 +77,6 @@ const Explore = () => {
                         <p>Lives in Tbilisi</p>
                     </div>
                 </div>
-                {/* <div className='lookingFor'>
-
-            </div> */}
                 <div className='more'>
                     <div className='passions'>
                         <p>Passions</p>
@@ -66,10 +84,12 @@ const Explore = () => {
                             <div>guitar</div><div>violin</div><div>singing</div><div>coffee</div><div>sneakers</div>
                         </div>
                     </div>
-                    {/* <div className=''>
-
-                </div> */}
                 </div>
+            </div>
+            }
+            <div className='buttons'>
+                <img src={Unlike} alt="" />
+                <img src={Like} alt="" />
             </div>
         </div>
     )

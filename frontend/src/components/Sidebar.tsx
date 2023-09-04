@@ -3,15 +3,24 @@ import Logo from '../assets/images/logo.png'
 import Nav from '../assets/images/navigation.png'
 import Message from '../assets/images/message.png'
 import Search from '../assets/images/search.png'
-import NavbarPopup from './NavbarPopup'
+import {NavbarPopup, NewMatchesPopup} from '../components'
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
+import * as api from '../api/api'
 
-const Sidebar = () => {
+const Sidebar: React.FC<{
+    newMatchesPopupVisible: boolean,
+    setNewMatchesPopupVisible: React.Dispatch<React.SetStateAction<boolean>>,
+    newMatchesAmount: number
+}> = ({
+          newMatchesPopupVisible,
+          setNewMatchesPopupVisible,
+          newMatchesAmount
+      }) => {
 
-    const [modalVisible, setModalVisible] = useState(false)
+    const [navbarPopupVisible, setNavbarPopupVisible] = useState(false)
 
-    const {isLoggedIn} = useSelector((state: RootState) => state.UsersReducer)
+    const {isLoggedIn, userInfo} = useSelector((state: RootState) => state.UsersReducer)
 
     const navigate = useNavigate()
     const location = useLocation()
@@ -25,6 +34,20 @@ const Sidebar = () => {
         // execute on location change
         setIsViewAs(false)
     }, [location]);
+
+    useEffect(() => {
+        // alert()
+        // alert()
+        // window.setTimeout(async () => {
+        //   let res = await api.getMatchedUsers((userInfo as any).username);
+        //   if(res.data.length === 0) {
+        //     setNewMatchesAmount(res.data)
+        //     setNewMatchesPopupVisible(true)
+        //   }
+        // }, 1500)
+    }, [userInfo])
+
+
 
     return (
         <>
@@ -41,7 +64,7 @@ const Sidebar = () => {
                                 </button>
                             </>
                         }
-                        <button onClick={() => setModalVisible(true)}>
+                        <button onClick={() => setNavbarPopupVisible(true)}>
                             <img src={Nav} />
                         </button>
                     </div>
@@ -52,27 +75,26 @@ const Sidebar = () => {
 
                 {isLoggedIn &&
                     <div className='center_part'>
-                        {centerView === 'explore' ? <button onClick={() => {setIsViewAs(!isViewAs)}}>
-                                {!isViewAs ? 'view as' : 'exit view as'}
-                            </button>
-                            : <div className='messagesContainer'>
-                                <div>
-                                    <p>Maryam</p>
-                                    <p>↩ How are you?</p>
-                                </div>
-                                <div>
-                                    <p>Maryam</p>
-                                    <p>↪ How are you?</p>
-                                </div>
-                                <div>
-                                    <p>Maryam</p>
-                                    <p>↪ How are you?</p>
-                                </div>
-                                <div>
-                                    <p>Maryam</p>
-                                    <p>↪ How are you?</p>
-                                </div>
-                            </div> }
+                        {
+                            centerView === 'explore' ?
+                                <></>
+                                // <button onClick={() => {setIsViewAs(!isViewAs)}}>
+                                //   {!isViewAs ? 'view as' : 'exit view as'}
+                                // </button>
+                                : <div className='messagesContainer'>
+                                    <div className='active'>
+                                        <p>Maryam</p>
+                                        <p>↩ Great, what about your musical career?</p>
+                                    </div>
+                                    <div>
+                                        <p>Zura</p>
+                                        <p>↪ Thanks a lot</p>
+                                    </div>
+                                    <div>
+                                        <p>Ketevan</p>
+                                        <p>Tap to send message</p>
+                                    </div>
+                                </div> }
                     </div>}
 
                 <div className='bottom_part'>
@@ -89,7 +111,9 @@ const Sidebar = () => {
                 </div>
             </aside>
 
-            {modalVisible && <NavbarPopup setVisible={setModalVisible} />}
+            {navbarPopupVisible && <NavbarPopup setVisible={setNavbarPopupVisible} />}
+            {console.log(newMatchesPopupVisible, newMatchesAmount) }
+            {(newMatchesPopupVisible && newMatchesAmount > 0) && <NewMatchesPopup setVisible={setNewMatchesPopupVisible} newMatchesAmount={newMatchesAmount} />}
         </>
     )
 };

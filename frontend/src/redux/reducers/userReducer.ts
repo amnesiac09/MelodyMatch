@@ -2,9 +2,10 @@ import { GET_USERS, CREATE_USER, LOGIN_USER, EDIT_USER, RESET_PASSWORD, FORGET_P
 
 const initialState = {
     users: [],
-    isLoggedIn: true,
-    userInfo: {},
-    token: ''
+    isLoggedIn: false,
+    userInfo: null,
+    token: '',
+    stompClient: null
 }
 const UsersReducer = (state=initialState, action: any) => {
     switch(action.type) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from './redux/actions/userActions';
 import logo from './assets/images/logo.png'
@@ -45,7 +45,8 @@ function App() {
     // }
   }, [location])
 
-  console.log('hi')
+  const [newMatchesPopupVisible, setNewMatchesPopupVisible] = useState(false)
+  const [newMatchesAmount, setNewMatchesAmount] = useState(0)
 
   return (
       <>
@@ -54,7 +55,7 @@ function App() {
             <Route path="/" element={<Intro />}/>
             <Route path="/profile" element={<Profile />}/>
             <Route path="/registration" element={<SignUp />}/>
-            <Route path="/login" element={<SignIn />}/>
+            <Route path="/login" element={<SignIn setNewMatchesPopupVisible={setNewMatchesPopupVisible} setNewMatchesAmount={setNewMatchesAmount}/>}/>
             <Route path="/explore" element={<Explore />}/>
             <Route path="/chat" element={<Chat />}/>
             <Route path="*" element={<NotFound />}/>
@@ -62,10 +63,11 @@ function App() {
         </div>
         {
             location.pathname !== '/' && <>
-              <Sidebar />
+              <Sidebar newMatchesPopupVisible={newMatchesPopupVisible} setNewMatchesPopupVisible={setNewMatchesPopupVisible} newMatchesAmount={newMatchesAmount} />
               {location.pathname !== '/explore' && location.pathname !== '/chat' && <Footer />}
             </>
         }
+
       </>
   );
 }
