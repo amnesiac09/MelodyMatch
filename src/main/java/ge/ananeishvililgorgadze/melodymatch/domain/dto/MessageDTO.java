@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 public class MessageDTO {
     private long id;
-    private long senderId;
-    private long receiverId;
+    private String senderUsername;
+    private String receiverUsername;
     private String messageContent;
     private LocalDateTime sentTime;
     private boolean seen;

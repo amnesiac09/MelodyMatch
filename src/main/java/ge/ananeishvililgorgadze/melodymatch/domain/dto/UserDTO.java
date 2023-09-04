@@ -18,9 +18,14 @@ public class UserDTO {
 
 	private String email;
 
+	private String bio;
+
 	private List<Long> likedUsers;
 
 	private List<Long> matchedUsers;
 
 	private List<String> mediaFilenames;
+
+	private int newMatchedUsersCount;
+
 }

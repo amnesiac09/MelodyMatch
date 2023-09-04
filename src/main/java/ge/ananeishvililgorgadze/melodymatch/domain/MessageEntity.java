@@ -17,8 +17,8 @@ public class MessageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private long senderId;
-    private long receiverId;
+    private String senderUsername;
+    private String receiverUsername;
     private String messageContent;
     @CreatedDate
     private LocalDateTime sentTime;

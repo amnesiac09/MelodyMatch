@@ -33,10 +33,8 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public List<MessageEntity> getMessages(String username1, String username2) {
-        UserEntity user1 = userRepository.findByUsername(username1).orElseThrow();
-        UserEntity user2 = userRepository.findByUsername(username2).orElseThrow();
-        List<MessageEntity> firstMessages = messageRepository.findBySenderIdAndReceiverId(user1.getId(), user2.getId());
-        List<MessageEntity> secondMessages = messageRepository.findBySenderIdAndReceiverId(user2.getId(), user1.getId());
+        List<MessageEntity> firstMessages = messageRepository.findBySenderUsernameAndReceiverUsername(username1, username2);
+        List<MessageEntity> secondMessages = messageRepository.findBySenderUsernameAndReceiverUsername(username2, username1);
         firstMessages.addAll(secondMessages);
         try {
             firstMessages.sort(Comparator.comparing(MessageEntity::getSentTime));
@@ -57,5 +55,16 @@ public class MessageServiceImpl implements MessageService {
             message.setMessageType(MessageType.EDITED);
         }
         messageRepository.save(message);
+    }
+
+    @Override
+    public MessageEntity getLastMessage(String username1, String username2) {
+        MessageEntity message1 = messageRepository.findFirstBySenderUsernameAndReceiverUsernameOrderBySentTimeDesc(username1, username2);
+        MessageEntity message2 = messageRepository.findFirstBySenderUsernameAndReceiverUsernameOrderBySentTimeDesc(username2, username1);
+        if (message1.getSentTime().isAfter(message2.getSentTime())) {
+            return message1;
+        } else {
+            return message2;
+        }
     }
 }

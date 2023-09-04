@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface MessageRepository extends JpaRepository<MessageEntity, Long>, JpaSpecificationExecutor<MessageEntity> {
 
-    List<MessageEntity> findBySenderIdAndReceiverId(long id1, long id2);
+    List<MessageEntity> findBySenderUsernameAndReceiverUsername(String senderUsername, String receiverUsername);
+    MessageEntity findFirstBySenderUsernameAndReceiverUsernameOrderBySentTimeDesc(String senderUsername, String receiverUsername);
 }

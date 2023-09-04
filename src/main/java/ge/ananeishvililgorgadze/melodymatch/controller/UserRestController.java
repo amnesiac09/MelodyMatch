@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/user")
 @Tag(name = "User", description = "User API")
@@ -142,5 +144,18 @@ public class UserRestController {
 			@RequestParam("userId") int userId) {
 		userService.deleteFile(filename, userId);
 		return ResponseEntity.ok("File deleted successfully");
+	}
+
+	@GetMapping(value = "getMatchedUsers/{username}", produces = "application/json")
+	@Parameter(name = "username", schema = @Schema(implementation = String.class), in = ParameterIn.PATH, description = "Username of user")
+	@Operation(summary = "Get matched users by username", responses = {
+			@ApiResponse(responseCode = "200",
+					description = "Successfully retrieved matched users",
+					content = @Content(schema = @Schema(implementation = List.class))),
+			@ApiResponse(responseCode = "400", description = "One of the query parameters has a bad value"),
+			@ApiResponse(responseCode = "500", description = "Error occurred while retrieving matched user"),
+	})
+	public List<UserDTO> getMatchedUsers(@PathVariable("username") String username) {
+		return userMapper.toDTOs(userService.getMatchedUsers(username));
 	}
 }

@@ -8,4 +8,6 @@ public interface MessageService {
     void sendMessage(MessageEntity message);
     List<MessageEntity> getMessages(String username1, String username2);
     void updateMessage(long messageId, String content, boolean delete);
+
+    MessageEntity getLastMessage(String username1, String username2);
 }
