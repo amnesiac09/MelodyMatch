@@ -20,12 +20,22 @@ const Chat = () => {
     const [activeVideoIndex, setActiveVideoIndex] = useState(0)
     const [messages, setMessages] = useState([])
     const [sendButtonType, setSendButtonType] = useState("SEND")
-    const [currentMessage, setCurrentMessage] = useState("")
+    const [currentMessage, setCurrentMessage] = useState(
+        {
+            id: 0,
+            senderUsername: "",
+            receiverUsername: "",
+            messageContent: "",
+            sentTime:	"",
+            seen: false
+        }
+        // null
+    )
 
     const dummyMessageRef = useRef() as MutableRefObject<HTMLDivElement>;
     const textareaRef = useRef() as MutableRefObject<HTMLTextAreaElement>;
 
-    // const {stompClient} = useSelector((state: RootState) => state.UsersReducer)
+    const {isLoggedIn, userInfo} = useSelector((state: RootState) => state.UsersReducer)
     const [stompClient, setStompClient] = useState(null)
 
     const videos = [
@@ -37,6 +47,7 @@ const Chat = () => {
 
     const getMessages = async () => {
         let res: any = await api.getMessages('x', 'yaa')
+        console.log(res)
         setMessages(res)
     }
 
@@ -59,7 +70,6 @@ const Chat = () => {
         // };
 
         let stompClient = Stomp.over(socket)
-        console.log(2)
         const onConnected = () => {
             (stompClient as any).subscribe(('/topic'), onMessageReceived)
         }
@@ -70,8 +80,9 @@ const Chat = () => {
         (stompClient as any).connect({}, onConnected, onError)
 
         const onMessageReceived = (payload: any) => {
-            console.log(payload)
-            // console.log("message: ", JSON.parse(payload.body))
+            console.log(JSON.parse(payload.body))
+            setMessages(JSON.parse(payload.body))
+            console.log(messages)
         }
 
         setStompClient(stompClient as any)
@@ -90,24 +101,49 @@ const Chat = () => {
             messageContent: textareaRef.current.value,
             seen: false
         };
-        await (stompClient as any).send('/app/sendMessage', {}, JSON.stringify(data))
-        await getMessages()
-        // setMessages(currentMessage as any)
-        setCurrentMessage('')
+        let a = await (stompClient as any).send('/app/sendMessage', {}, JSON.stringify(data))
+        // let b = await getMessages()
+        // console.log(a,b)
+        // setMessages({
+        //   ...messages,
+
+        // })
+        setCurrentMessage(null as any)
+        textareaRef.current.value = ''
     }
 
-    const editMessage = (e: React.FormEvent<HTMLFormElement>) => {
+    const editMessage = async (e: React.FormEvent<HTMLFormElement>, shouldDelete:boolean) => {
+        console.log("here")
         e.preventDefault()
+        const data = {
+            messageId: (currentMessage as any).id,
+            content: (currentMessage as any).messageContent,
+            delete: shouldDelete,
+            senderNickname: "yaa",
+            receiverNickname: "x"
+        }
+        await api.editMessage(data)
+        // await getMessages()
         setSendButtonType("SEND")
-        setCurrentMessage('')
+        setCurrentMessage(null as any)
+        textareaRef.current.value = ''
     }
 
-    const setEditingMessage = (text: string) => {
-        setCurrentMessage(text)
+    const deleteMessage = async (id: number) => {
+        const data = {
+            messageId: id,
+            content: '',
+            delete: true
+        }
+        await api.editMessage(data)
+        // await getMessages()
+    }
+
+    const setEditingMessage = (item: any) => {
+        setCurrentMessage(item)
         textareaRef.current.focus()
         setSendButtonType("EDIT")
     }
-
 
     return (
         <div id='chat'>
@@ -120,41 +156,20 @@ const Chat = () => {
                     {/* <div className='dateContainer'>
               <div className='message'>9/1/2023, 7:58 PM</div>
             </div> */}
-                    {/* <div className='messageContainer'>
-              <img src={Delete}/>
-              <img src={Edit}/>
-              <time>7:58</time>
-              <div className='message'>Maryam!</div>
-            </div>
-            <div className='messageContainer'>
-              <img src={Delete}/>
-              <img src={Edit}/>
-              <time>7:58</time>
-              <div className='message'>How are you?</div>
-            </div>
-            <div className='messageContainer fromHer'>
-              <time>7:58</time>
-              <div className='message'>Fine, you?Fine, you?Fine, you?Fine, you?Fine, you?Fine, you?Fine, you?Fine, you?Fine, you?Fine, you?Fine, you?Fine, you?Fine, you?Fine, you?Fine, you?</div>
-            </div>
-            <div className='messageContainer isLast'>
-              <img src={Delete}/>
-              <img onClick={() => setEditingMessage('Great, what about your musical career?')} src={Edit}/>
-              <time>7:58</time>
-              <div className='message'>Great, what about your musical career?</div>
-            </div> */}
                     {
-                        messages.map((item: any, i) => {
+                        messages.length > 0 && messages.map((item: any, i) => {
                             let isMine = item.senderUsername === 'yaa'
                             let isLast = i === messages.length - 1
+                            let isDeleted = item.messageType === "DELETED"
                             return (
                                 <div className={`messageContainer ${isMine ? "" : "fromHer"} ${(isLast && isMine) ? "isLast" : ""}`}>
                                     {isMine && <>
-                                        <img src={Delete}/>
-                                        <img src={Edit} onClick={() => setEditingMessage(item.messageContent)} />
+                                        <img src={Delete} onClick={(e) => deleteMessage(item.id)}/>
+                                        <img src={Edit} onClick={() => setEditingMessage(item)} />
                                     </>
                                     }
                                     <time>7:58</time>
-                                    <div className='message'>{item.messageContent}</div>
+                                    <div className={`message ${isDeleted ? "deleted" : ""}`}>{item.messageContent}</div>
                                 </div>
                             )
                         })
@@ -164,9 +179,9 @@ const Chat = () => {
                     </div>
                 </div>
                 <div className='bottomPart'>
-                    <form onSubmit={(e) => sendButtonType === "SEND" ? sendMessage(e) : editMessage(e)}>
-                        <textarea ref={textareaRef} placeholder='Type a message' name="" id="" value={currentMessage} onChange={(e: React.FormEvent) => setCurrentMessage((e.target as HTMLTextAreaElement).value)}></textarea>
-                        <button className={`messageContainer ${currentMessage !== '' ? "active" : ""}`}>{sendButtonType === "SEND" ? "send" : "save"}</button>
+                    <form onSubmit={(e) => sendButtonType === "SEND" ? sendMessage(e) : editMessage(e, false)}>
+                        <textarea ref={textareaRef} placeholder='Type a message' name="" id="" value={(currentMessage as any)?.messageContent} onChange={(e: React.FormEvent) => setCurrentMessage({...currentMessage as any, messageContent : (e.target as HTMLTextAreaElement).value})}></textarea>
+                        <button className={`messageContainer ${(currentMessage as any)?.messageContent !== '' ? "active" : ""}`}>{sendButtonType === "SEND" ? "send" : "save"}</button>
                     </form>
                 </div>
             </div>

@@ -13,6 +13,10 @@ export const getMessages = async (username1: string, username2: string) => {
         })
 }
 
+export const editMessage = async (data: any) => {
+    return await axios.put(`${url}/chat/updateMessage`, data)
+}
+
 export const getUser = async (id: number) => {
     return await axios.get(`${url}/user/get/${id}`, config)
 }

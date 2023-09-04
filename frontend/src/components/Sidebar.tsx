@@ -19,6 +19,7 @@ const Sidebar: React.FC<{
       }) => {
 
     const [navbarPopupVisible, setNavbarPopupVisible] = useState(false)
+    const [matchedUsers, setMatchedUsers] = useState([])
 
     const {isLoggedIn, userInfo} = useSelector((state: RootState) => state.UsersReducer)
 
@@ -28,11 +29,24 @@ const Sidebar: React.FC<{
     const centerViews = ['explore', 'messages']
     const [centerView, setCenterView] = useState(centerViews[0])
 
-    const [isViewAs, setIsViewAs] = useState(false)
+    // const [isViewAs, setIsViewAs] = useState(false)
 
     useEffect(() => {
         // execute on location change
-        setIsViewAs(false)
+        // setIsViewAs(false)
+        if(location.pathname === '/chat') {
+            const getMatchedUsers = async () => {
+                let res = await api.getMatchedUsers((userInfo as any).username)
+                return res
+            }
+            try {
+                let res: any = getMatchedUsers().then((res) => {
+                    setMatchedUsers(res.data)
+                })
+            } catch(e) {
+                console.log(e)
+            }
+        }
     }, [location]);
 
     useEffect(() => {
@@ -73,7 +87,8 @@ const Sidebar: React.FC<{
                     </a>
                 </div>
 
-                {isLoggedIn &&
+                {(isLoggedIn && matchedUsers)  &&
+
                     <div className='center_part'>
                         {
                             centerView === 'explore' ?
@@ -82,6 +97,16 @@ const Sidebar: React.FC<{
                                 //   {!isViewAs ? 'view as' : 'exit view as'}
                                 // </button>
                                 : <div className='messagesContainer'>
+                                    {/* {
+                matchedUsers.map((item: any) => {
+                  return (
+                    <div>
+                      <p>{item.username}</p>
+                      <p>{item.lastMessage.senderUsername === (userInfo as any).username ? '↪' : '↩'} {item.lastMessage}</p>
+                    </div>
+                  )
+                })
+              } */}
                                     <div className='active'>
                                         <p>Maryam</p>
                                         <p>↩ Great, what about your musical career?</p>
