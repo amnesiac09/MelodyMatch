@@ -34,7 +34,13 @@ public class UserEntity {
 	private String password;
 
 	@Column(nullable = false)
+	private int newMatchedUsersCount;
+
+	@Column(nullable = false)
 	private String name;
+
+	@Column(nullable = false)
+	private String bio;
 
 	@Column(unique = true, nullable = false)
 	private String email;
@@ -55,4 +61,9 @@ public class UserEntity {
 	@ElementCollection
 	@Enumerated(EnumType.STRING)
 	private List<MusicalInstrument> musicalInstruments;
+
+	@Column(nullable = false)
+	@ElementCollection
+	@Enumerated(EnumType.STRING)
+	private List<MusicalGenres> musicalGenres;
 }

@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -150,6 +151,19 @@ public class UserServiceImpl implements UserService {
 		currentMedia.remove(filename);
 		user.setMediaFilenames(currentMedia);
 		editUser(user);
+	}
+
+	@Override
+	public List<UserEntity> getMatchedUsers(String username) {
+		UserEntity user = userRepository.findByUsername(username).orElseThrow();
+		List<UserEntity> matchedUsers = new ArrayList<>();
+		for (Long id : user.getMatchedUsers()) {
+			UserEntity currUser = getUser(id);
+			if (currUser.getMatchedUsers().contains(user.getId())) {
+				matchedUsers.add(currUser);
+			}
+		}
+		return matchedUsers;
 	}
 
 	private void matchUsers(UserEntity firstUser, UserEntity secondUser){

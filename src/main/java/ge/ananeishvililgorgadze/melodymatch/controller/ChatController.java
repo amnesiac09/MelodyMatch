@@ -40,12 +40,12 @@ public class ChatController {
     @MessageMapping("sendMessage")
     @Operation(summary = "Send message", responses = {
             @ApiResponse(responseCode = "200",
-                    description = "Successfully liked user", content = @Content(schema = @Schema(implementation = String.class))),
+                    description = "Successfully sent message", content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "One of the query parameters has a bad value"),
             @ApiResponse(responseCode = "500", description = "Error occurred while sending message"),
     })
-    public ResponseEntity<String> sendMessage(@Payload MessageEntity chatMessage) {
-        messageService.sendMessage(chatMessage);
+    public ResponseEntity<String> sendMessage(@Payload MessageDTO chatMessage) {
+        messageService.sendMessage(messageMapper.fromDTO(chatMessage));
         messageTemplate.convertAndSend("/topic/public", chatMessage);
         return ResponseEntity.ok("Message sent successfully");
     }
@@ -53,7 +53,7 @@ public class ChatController {
     @GetMapping("getMessages/{username1}&{username2}")
     @Operation(summary = "Get messages", responses = {
             @ApiResponse(responseCode = "200",
-                    description = "Successfully liked user", content = @Content(schema = @Schema(implementation = List.class))),
+                    description = "Successfully retrieved messages", content = @Content(schema = @Schema(implementation = List.class))),
             @ApiResponse(responseCode = "400", description = "One of the query parameters has a bad value"),
             @ApiResponse(responseCode = "500", description = "Error occurred while getting messages"),
     })
@@ -81,5 +81,16 @@ public class ChatController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while updating message");
         }
+    }
+
+    @GetMapping("getLastMessage/{username1}&{username2}")
+    @Operation(summary = "Get last message", responses = {
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved last message", content = @Content(schema = @Schema(implementation = MessageDTO.class))),
+            @ApiResponse(responseCode = "400", description = "One of the query parameters has a bad value"),
+            @ApiResponse(responseCode = "500", description = "Error occurred while getting last message"),
+    })
+    public MessageDTO getLastMessage(@PathVariable("username1") String username1, @PathVariable("username2") String username2) {
+        return messageMapper.toDTO(messageService.getLastMessage(username1, username2));
     }
 }
