@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Logo from '../assets/images/logo.png'
 import { useNavigate } from 'react-router-dom';
 import GenderMan from '../assets/images/genderMan.png'
@@ -8,6 +8,7 @@ import ArrowLeft from '../assets/images/arrowLeft.png'
 import ArrowRight from '../assets/images/arrowRight.png'
 import Stomp from 'stompjs'
 import SockJS from "sockjs-client";
+import * as api from '../api/api'
 
 const Chat = () => {
 
@@ -21,31 +22,38 @@ const Chat = () => {
         'https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_4201d662-697d-4228-b04e-029a0705ddd2.webp',
     ]
 
+    useEffect(() => {
+        console.log("here")
+        api.getMessages(1,2)
+    }, [api])
+
     const socket = new SockJS('http://localhost:8080/ws');
-    socket.onopen = function() {
-        console.log('successful');
-    };
+    // socket.onopen = function() {
+    //     console.log('successful');
+    // };
 
-    socket.onclose = function() {
-        console.log('unsuccessful');
-    };
+    // socket.onclose = function() {
+    //     console.log('unsuccessful');
+    // };
 
-    socket.onmessage = function(e) {
-        console.log('message', e.data);
-        socket.close();
-    };
+    // socket.onmessage = function(e) {
+    //     console.log('message', e.data);
+    //     socket.close();
+    // };
 
     const stompClient = Stomp.over(socket)
     const onConnected = () => {
-        console.log('stomp init')
+        console.error('stomp init')
         stompClient.subscribe(('/topic'), onMessageReceived)
 
         const chatMessage = {
-            sender: '2',
-            content: '2'
+            senderId: 1,
+            receiverId: 2,
+            messageContent: '0000',
+            seen: false
         }
 
-        stompClient.send('/sendMessage', {}, JSON.stringify(chatMessage))
+        stompClient.send('/app/sendMessage', {}, JSON.stringify(chatMessage))
     }
 
     const onError = (err: any) => {
@@ -54,19 +62,18 @@ const Chat = () => {
     stompClient.connect({}, onConnected, onError)
 
     const onMessageReceived = (payload: any) => {
-        console.log("message", JSON.parse(payload.body))
+        // console.log("message: ", JSON.parse(payload.body))
     }
 
     const sendMessage = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        socket.send(JSON.stringify({
-            senderId: 2,
-            receiverId: 2,
-            content: 'sasa'
-        }))
+        //  e.preventDefault()
+        // socket.send(JSON.stringify({
+        //     senderId: 2,
+        //     receiverId: 2,
+        //     content: '123'
+        // }))
     }
 
-    console.log(socket)
 
     return (
         <div id='chat'>
