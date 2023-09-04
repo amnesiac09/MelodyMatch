@@ -25,4 +25,8 @@ public class MessageEntity {
     private boolean seen;
     @Enumerated(EnumType.STRING)
     private MessageType messageType;
+    @OrderBy("sentTime ASC") // or "DESC" for descending order
+    public LocalDateTime getSentTime() {
+        return sentTime;
+    }
 }

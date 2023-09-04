@@ -43,17 +43,16 @@ const Chat = () => {
 
     const stompClient = Stomp.over(socket)
     const onConnected = () => {
-        console.error('stomp init')
         stompClient.subscribe(('/topic'), onMessageReceived)
 
         const chatMessage = {
             senderId: 1,
             receiverId: 2,
-            messageContent: '0000',
+            messageContent: 'movediiiiii',
             seen: false
         }
 
-        stompClient.send('/app/sendMessage', {}, JSON.stringify(chatMessage))
+        // stompClient.send('/app/sendMessage', {}, JSON.stringify(chatMessage))
     }
 
     const onError = (err: any) => {

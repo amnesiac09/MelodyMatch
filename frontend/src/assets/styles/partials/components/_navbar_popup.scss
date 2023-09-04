@@ -36,11 +36,11 @@
         height: 78vh;
     }
 
-    
+
     ul {
         counter-reset: section; /* Increment the value of section counter by 1 */
     }
-    
+
     li {
         font-size: 10vh;
         margin: 5vh;
@@ -56,7 +56,7 @@
             font-weight: bold;
             // transform: translateY(10px);
         }
-    
+
     }
     a {
         transition: 300ms;
@@ -68,7 +68,7 @@
 
     &.loggedIn {
         & > button {
-            margin: 4.7vh 14.8vw 0px 14.9vw;        
+            margin: 4.7vh 14.8vw 0px 14.9vw;
         }
     }
 }
