@@ -34,15 +34,15 @@ function App() {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    // if(!isLoggedIn) {
-    //   if(location.pathname === '/profile' || location.pathname === '/chat' || location.pathname === '/explore') {
-    //     navigate('/login')
-    //   }
-    // } else {
-    //   if(location.pathname === '/login' || location.pathname === '/registration') {
-    //     navigate('/profile')
-    //   }
-    // }
+    if(!isLoggedIn) {
+      if(location.pathname === '/profile' || location.pathname === '/chat' || location.pathname === '/explore') {
+        navigate('/login')
+      }
+    } else {
+      if(location.pathname === '/login' || location.pathname === '/registration') {
+        navigate('/profile')
+      }
+    }
   }, [location])
 
   const [newMatchesPopupVisible, setNewMatchesPopupVisible] = useState(false)
@@ -53,11 +53,11 @@ function App() {
         <div className={`routes ${isLoggedIn ? 'loggedIn' : ''}`}>
           <Routes>
             <Route path="/" element={<Intro />}/>
-            <Route path="/profile" element={<Profile />}/>
-            <Route path="/registration" element={<SignUp />}/>
-            <Route path="/login" element={<SignIn setNewMatchesPopupVisible={setNewMatchesPopupVisible} setNewMatchesAmount={setNewMatchesAmount}/>}/>
-            <Route path="/explore" element={<Explore />}/>
-            <Route path="/chat" element={<Chat />}/>
+            <Route path="/profile" element={isLoggedIn ? <Profile /> : <SignIn setNewMatchesPopupVisible={setNewMatchesPopupVisible} setNewMatchesAmount={setNewMatchesAmount}/>}/>
+            <Route path="/registration" element={!isLoggedIn ? <SignUp /> : <Profile /> }/>
+            <Route path="/login" element={!isLoggedIn ? <SignIn setNewMatchesPopupVisible={setNewMatchesPopupVisible} setNewMatchesAmount={setNewMatchesAmount}/> : <Profile />}/>
+            <Route path="/explore" element={isLoggedIn ? <Explore /> : <SignIn setNewMatchesPopupVisible={setNewMatchesPopupVisible} setNewMatchesAmount={setNewMatchesAmount}/>}/>
+            <Route path="/chat" element={isLoggedIn ? <Chat /> : <SignIn setNewMatchesPopupVisible={setNewMatchesPopupVisible} setNewMatchesAmount={setNewMatchesAmount}/>}/>
             <Route path="*" element={<NotFound />}/>
           </Routes>
         </div>

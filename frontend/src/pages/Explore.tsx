@@ -36,7 +36,6 @@ const Explore = () => {
     const [activeUserId, setActiveUserId] = useState()
 
     useEffect(() => {
-        alert()
         const getUsers = async () => {
             const data = {
                 nickname: (userInfo as any).username,

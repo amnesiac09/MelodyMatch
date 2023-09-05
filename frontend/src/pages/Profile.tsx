@@ -1,17 +1,95 @@
 import React, { MutableRefObject, useRef, useState } from 'react';
+import * as api from '../api/api'
+import { editUser } from '../api/api';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Profile = () => {
+    const {userInfo, isLoggedIn} = useSelector((state: RootState) => state.UsersReducer)
 
     const [activeContent, setActiveContent] = useState('Account')
     const contents: Array<string> = ['Account', 'Personal', 'Content']
 
-    const [videosUploadedAmount, setVideosUploadedAmount] = useState(0)
+    const [contentState, setContentState] = useState({
+        video1: "",
+        video2: "",
+        video3: "",
+        video4: "",
+        video5: "",
+        video6: "",
+        video7: "",
+        video8: "",
+        video9: "",
+    })
     const videoMaxAmount = 9
 
     const ref = useRef() as MutableRefObject<HTMLInputElement>;
 
+    const [selectedFile, setSelectedFile] = React.useState(null);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
+    }
+    const navigate = useNavigate()
+    const dispatch = useDispatch();
+
+    const handleUpload = async (e: React.ChangeEvent) => {
+        // e.preventDefault()
+        // setVideosUploadedAmount(videosUploadedAmount+1)
+        let target = e.target as HTMLInputElement
+        // let activeDiv = ref.current.querySelector(`div:nth-child(${videosUploadedAmount + 1})`) as HTMLDivElement
+        // let imgTag = activeDiv.querySelector('img') as HTMLImageElement
+        // activeDiv.classList.add('active')
+        // setSelectedFile((target as any).files[0])
+
+        let uploadedImagesAmount: number = Object.values(contentState).filter(item => item !== "").length + 1
+        console.log(uploadedImagesAmount)
+
+        setContentState({
+            ...contentState,
+            [target.name]: URL.createObjectURL((target as any).files[0])
+        })
+
+        const formData = new FormData();
+        formData.append("selectedFile", (target as any).files[0]);
+
+        console.log(target.name)
+
+        api.uploadFile((userInfo as any).id, formData)
+
+        // const data = {
+        //     "id": 7,
+        //     "username": "7",
+        //     "password": "222222222",
+        //     "name": "s",
+        //     "gender": "MALE",
+        //     "location": "strdasding",
+        //     "email": "stng",
+        //     "bio": "string",
+        //     "likedUsers": [
+        //         0
+        //     ],
+        //     "matchedUsers": [
+        //         0
+        //     ],
+        //     "mediaFilenames": [
+        //         (target as any).files[0]
+        //     ],
+        //     "musicalInstruments": [
+        //         "GUITAR"
+        //     ],
+        //     "musicalGenres": [
+        //         "ROCK"
+        //     ],
+        //     "newMatchedUsersCount": 0
+        // }
+
+        // await api.editUser(data).then((res) => {
+        //     if(res.data) {
+        //         console.log(res.data)
+        //     //   dispatch(editUser(res.data) as any);
+        //     }
+        // })
     }
 
     return (
@@ -153,23 +231,66 @@ const Profile = () => {
                         </div> :
                         <div>
                             <h1 className='title'>Content Details</h1>
-                            <form onSubmit={(e) => handleSubmit(e)}>
+                            <form>
                                 <div className='yourPassions'>
                                     <p className='required'>Upload 2 or more videos</p>
-                                    <div className='videoContainer'>
-                                        {[...Array(videoMaxAmount)].map((i: number) => {
-                                            return (
-                                                <div>
-                                                    <label htmlFor="file" className="custom-file-upload">
-                                                        <video src=""/>
-                                                    </label>
-                                                    <input type="file" id='file' />
-                                                </div>
-                                            )
-                                        })}
+                                    <div className='videoContainer' ref={ref}>
+                                        <div>
+                                            <label htmlFor="file" className="custom-file-upload">
+                                                <img src={contentState.video1}/>
+                                            </label>
+                                            <input type="file" id='file' name='video1' onChange={(e: React.ChangeEvent) => handleUpload(e)}/>
+                                        </div>
+                                        <div>
+                                            <label htmlFor="file" className="custom-file-upload">
+                                                <img src={contentState.video2}/>
+                                            </label>
+                                            <input type="file" id='file' name='video2' onChange={(e: React.ChangeEvent) => handleUpload(e)}/>
+                                        </div>
+                                        <div>
+                                            <label htmlFor="file" className="custom-file-upload">
+                                                <img src={contentState.video3}/>
+                                            </label>
+                                            <input type="file" id='file' name='video3' onChange={(e: React.ChangeEvent) => handleUpload(e)}/>
+                                        </div>
+                                        <div>
+                                            <label htmlFor="file" className="custom-file-upload">
+                                                <img src={contentState.video4}/>
+                                            </label>
+                                            <input type="file" id='file' name='video4' onChange={(e: React.ChangeEvent) => handleUpload(e)}/>
+                                        </div>
+                                        <div>
+                                            <label htmlFor="file" className="custom-file-upload">
+                                                <img src={contentState.video5}/>
+                                            </label>
+                                            <input type="file" id='file' name='video5' onChange={(e: React.ChangeEvent) => handleUpload(e)}/>
+                                        </div>
+                                        <div>
+                                            <label htmlFor="file" className="custom-file-upload">
+                                                <img src={contentState.video6}/>
+                                            </label>
+                                            <input type="file" id='file' name='video6' onChange={(e: React.ChangeEvent) => handleUpload(e)}/>
+                                        </div>
+                                        <div>
+                                            <label htmlFor="file" className="custom-file-upload">
+                                                <img src={contentState.video7}/>
+                                            </label>
+                                            <input type="file" id='file' name='video7' onChange={(e: React.ChangeEvent) => handleUpload(e)}/>
+                                        </div>
+                                        <div>
+                                            <label htmlFor="file" className="custom-file-upload">
+                                                <img src={contentState.video8}/>
+                                            </label>
+                                            <input type="file" id='file' name='video8' onChange={(e: React.ChangeEvent) => handleUpload(e)}/>
+                                        </div>
+                                        <div>
+                                            <label htmlFor="file" className="custom-file-upload">
+                                                <img src={contentState.video9}/>
+                                            </label>
+                                            <input type="file" id='file' name='video9' onChange={(e: React.ChangeEvent) => handleUpload(e)}/>
+                                        </div>
                                     </div>
                                 </div>
-                                <button>Save</button>
                             </form>
                         </div>
                 }

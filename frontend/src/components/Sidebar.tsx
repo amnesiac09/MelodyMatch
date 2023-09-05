@@ -50,7 +50,6 @@ const Sidebar: React.FC<{
             }
             try {
                 let res: any = getMatchedUsers().then((res) => {
-                    console.log(res.data)
                     setMatchedUsers(res.data)
                     setActiveUser(matchedUsers[0])
                     dispatch(setActiveUser(matchedUsers[0]) as any)

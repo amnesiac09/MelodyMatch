@@ -29,7 +29,7 @@ export const addUser = async (data: any) => {
     return await axios.post(`${url}/user/add`, data)
 }
 export const loginUser = async (data: any) => {
-    return await axios.post(`${url}/user/login`, data)
+    return await axios.post(`${url}/auth/jwt`, data)
 }
 
 export const getMatchedUsers = async (username: string) => {
@@ -47,6 +47,22 @@ export const likeUser = async (id1: number, id2: any) => {
             secondId: id2
         }
     }).then(res => console.log(res))
+}
+
+export const uploadFile = async (id: any, formData: any) => {
+    return await axios(
+        {
+            method: 'post',
+            url: `${url}/user/uploadFile`,
+            data: formData,
+            headers: {
+                'Content-Type': `multipart/form-data`,
+            },
+            params: {
+                userId: id,
+            }
+        }
+    )
 }
 
 
