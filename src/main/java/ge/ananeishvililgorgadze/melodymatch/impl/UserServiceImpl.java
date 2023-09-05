@@ -2,7 +2,13 @@ package ge.ananeishvililgorgadze.melodymatch.impl;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import ge.ananeishvililgorgadze.melodymatch.domain.MessageEntity;
+import ge.ananeishvililgorgadze.melodymatch.domain.MusicalGenre;
+import ge.ananeishvililgorgadze.melodymatch.domain.MusicalInstrument;
 import ge.ananeishvililgorgadze.melodymatch.domain.UserEntity;
+import ge.ananeishvililgorgadze.melodymatch.domain.UserFilter;
+import ge.ananeishvililgorgadze.melodymatch.domain.dto.MatchedUserResponse;
+import ge.ananeishvililgorgadze.melodymatch.repository.MessageRepository;
 import ge.ananeishvililgorgadze.melodymatch.repository.UserRepository;
 import ge.ananeishvililgorgadze.melodymatch.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +33,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
+	private final MessageRepository messageRepository;
 	private final PasswordEncoder encoder;
 
 	@Value("${s3.bucketName}")
@@ -38,8 +45,9 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private AmazonS3 s3Client;
 
-	public UserServiceImpl(UserRepository userRepository, PasswordEncoder encoder) {
+	public UserServiceImpl(UserRepository userRepository, MessageRepository messageRepository, PasswordEncoder encoder) {
 		this.userRepository = userRepository;
+		this.messageRepository = messageRepository;
 		this.encoder = encoder;
 	}
 
@@ -153,17 +161,62 @@ public class UserServiceImpl implements UserService {
 		editUser(user);
 	}
 
+	public List<UserEntity> getUsers(UserFilter userFilter) {
+		UserEntity user = userRepository.findByUsername(userFilter.getNickname()).orElseThrow();
+		List<UserEntity> filteredUsers = userRepository.findAll();
+		filteredUsers.remove(user);
+		List<Long> likedUsers = user.getLikedUsers();
+		List<Long> matchedUsers = user.getMatchedUsers();
+		filteredUsers.removeIf(currentUser -> likedUsers.contains(currentUser.getId()) || matchedUsers.contains(currentUser.getId()));
+		filterUsersByInstrument(filteredUsers, user.getMusicalInstruments());
+		filterUsersByGenres(filteredUsers, user.getMusicalGenres());
+		return filteredUsers;
+	}
+	private void filterUsersByInstrument(List<UserEntity> users, List<MusicalInstrument> musicalInstruments){
+		for(UserEntity currentUser : users){
+			for(MusicalInstrument musicalInstrument : currentUser.getMusicalInstruments()){
+				if(!musicalInstruments.contains(musicalInstrument)){
+					users.remove(currentUser);
+				}
+			}
+		}
+	}
+
+	private void filterUsersByGenres(List<UserEntity> users, List<MusicalGenre> musicalGenres){
+		for(UserEntity currentUser : users){
+			for(MusicalGenre musicalGenre : currentUser.getMusicalGenres()){
+				if(!musicalGenres.contains(musicalGenre)){
+					users.remove(currentUser);
+				}
+			}
+		}
+	}
+
 	@Override
-	public List<UserEntity> getMatchedUsers(String username) {
+	public List<MatchedUserResponse> getMatchedUsers(String username) {
 		UserEntity user = userRepository.findByUsername(username).orElseThrow();
-		List<UserEntity> matchedUsers = new ArrayList<>();
+		List<MatchedUserResponse> matchedUsers = new ArrayList<>();
 		for (Long id : user.getMatchedUsers()) {
 			UserEntity currUser = getUser(id);
 			if (currUser.getMatchedUsers().contains(user.getId())) {
-				matchedUsers.add(currUser);
+				MessageEntity lastMessage = getLastMessage(currUser.getUsername(), username);
+				matchedUsers.add(new MatchedUserResponse(currUser, lastMessage));
 			}
 		}
 		return matchedUsers;
+	}
+
+	public MessageEntity getLastMessage(String username1, String username2) {
+		MessageEntity message1 = messageRepository.findFirstBySenderUsernameAndReceiverUsernameOrderBySentTimeDesc(username1, username2);
+		MessageEntity message2 = messageRepository.findFirstBySenderUsernameAndReceiverUsernameOrderBySentTimeDesc(username2, username1);
+
+		if (message1 != null && message1.getSentTime().isAfter(message2.getSentTime())) {
+			return message1;
+		} else if(message2 != null && message2.getSentTime().isAfter(message2.getSentTime())){
+			return message2;
+		}else{
+			return null;
+		}
 	}
 
 	private void matchUsers(UserEntity firstUser, UserEntity secondUser){

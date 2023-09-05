@@ -1,6 +1,6 @@
 package ge.ananeishvililgorgadze.melodymatch.domain;
 
-public enum MusicalGenres {
+public enum MusicalGenre {
 	ROCK,
 	HIP_HOP,
 	HEAVY_METAL,

@@ -1,5 +1,8 @@
 package ge.ananeishvililgorgadze.melodymatch.domain.dto;
 
+import ge.ananeishvililgorgadze.melodymatch.domain.Gender;
+import ge.ananeishvililgorgadze.melodymatch.domain.MusicalGenre;
+import ge.ananeishvililgorgadze.melodymatch.domain.MusicalInstrument;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,6 +19,10 @@ public class UserDTO {
 
 	private String name;
 
+	private Gender gender;
+
+	private String location;
+
 	private String email;
 
 	private String bio;
@@ -26,6 +33,9 @@ public class UserDTO {
 
 	private List<String> mediaFilenames;
 
-	private int newMatchedUsersCount;
+	private List<MusicalInstrument> musicalInstruments;
 
+	private List<MusicalGenre> musicalGenres;
+
+	private int newMatchedUsersCount;
 }

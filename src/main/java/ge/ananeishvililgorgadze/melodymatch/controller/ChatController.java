@@ -90,7 +90,7 @@ public class ChatController {
         boolean delete = request.isDelete();
         messageService.updateMessage(messageId, content, delete);
         List<MessageDTO> messages = messageMapper.toDTOs(messageService.getMessages(request.getSenderNickname(), request.getReceiverNickname()));
-        messagingTemplate.convertAndSend("/topic/public", messages);
+        messagingTemplate.convertAndSend("/topic", messages);
         return messages;
     }
 }

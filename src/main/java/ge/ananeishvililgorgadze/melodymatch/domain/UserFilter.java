@@ -9,6 +9,6 @@ import java.util.List;
 @Setter
 public class UserFilter {
 	private String nickname;
-	private List<MusicalGenres> musicalGenres;
+	private List<MusicalGenre> musicalGenres;
 	private List<MusicalInstrument> musicalInstruments;
 }

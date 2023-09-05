@@ -1,6 +1,8 @@
 package ge.ananeishvililgorgadze.melodymatch.service;
 
 import ge.ananeishvililgorgadze.melodymatch.domain.UserEntity;
+import ge.ananeishvililgorgadze.melodymatch.domain.UserFilter;
+import ge.ananeishvililgorgadze.melodymatch.domain.dto.MatchedUserResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -20,7 +22,8 @@ public interface UserService {
 	String getFileUrl(String filename);
 
 	void deleteFile(String filename, int userId);
+	List<UserEntity> getUsers(UserFilter userFilter);
 
-	List<UserEntity> getMatchedUsers(String username);
+	List<MatchedUserResponse> getMatchedUsers(String username);
 
 }

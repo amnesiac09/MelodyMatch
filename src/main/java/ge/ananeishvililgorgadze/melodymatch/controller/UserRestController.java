@@ -1,5 +1,7 @@
 package ge.ananeishvililgorgadze.melodymatch.controller;
 
+import ge.ananeishvililgorgadze.melodymatch.domain.UserFilter;
+import ge.ananeishvililgorgadze.melodymatch.domain.dto.MatchedUserResponse;
 import ge.ananeishvililgorgadze.melodymatch.domain.dto.UserDTO;
 import ge.ananeishvililgorgadze.melodymatch.mapper.UserMapper;
 import ge.ananeishvililgorgadze.melodymatch.service.UserService;
@@ -12,15 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -146,6 +140,23 @@ public class UserRestController {
 		return ResponseEntity.ok("File deleted successfully");
 	}
 
+	@PostMapping(value = "getUsers", produces = "application/json")
+	@Operation(summary = "Get filtered users", responses = {
+			@ApiResponse(responseCode = "200",
+					description = "Successfully retrieved filtered users",
+					content = @Content(schema = @Schema(implementation = List.class))),
+			@ApiResponse(responseCode = "400", description = "Bad request"),
+			@ApiResponse(responseCode = "500", description = "Error occurred while retrieving filtered users"),
+	})
+	public ResponseEntity<List<UserDTO>> getUsers(@RequestBody UserFilter userFilter) {
+		try {
+			List<UserDTO> filteredUserDTOs = userMapper.toDTOs(userService.getUsers(userFilter));
+			return ResponseEntity.ok(filteredUserDTOs);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
 	@GetMapping(value = "getMatchedUsers/{username}", produces = "application/json")
 	@Parameter(name = "username", schema = @Schema(implementation = String.class), in = ParameterIn.PATH, description = "Username of user")
 	@Operation(summary = "Get matched users by username", responses = {
@@ -155,7 +166,7 @@ public class UserRestController {
 			@ApiResponse(responseCode = "400", description = "One of the query parameters has a bad value"),
 			@ApiResponse(responseCode = "500", description = "Error occurred while retrieving matched user"),
 	})
-	public List<UserDTO> getMatchedUsers(@PathVariable("username") String username) {
-		return userMapper.toDTOs(userService.getMatchedUsers(username));
+	public List<MatchedUserResponse> getMatchedUsers(@PathVariable("username") String username) {
+		return userService.getMatchedUsers(username);
 	}
 }

@@ -22,6 +22,12 @@ public class UserEntity implements UserDetails {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
+	@Column(nullable = false)
+	private String location;
+
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private Gender gender;
 
 	@Column(unique = true, nullable = false)
 	private String username;
@@ -61,7 +67,7 @@ public class UserEntity implements UserDetails {
 	@Column(nullable = false)
 	@ElementCollection
 	@Enumerated(EnumType.STRING)
-	private List<MusicalGenres> musicalGenres;
+	private List<MusicalGenre> musicalGenres;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
