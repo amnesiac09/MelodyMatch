@@ -7,6 +7,9 @@ import {NavbarPopup, NewMatchesPopup} from '../components'
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import * as api from '../api/api'
+import { filterUsers, setActiveUser } from '../redux/actions/userActions';
+import { useDispatch } from 'react-redux';
+import { MusicalGenres, MusicalInstrument } from '../enums/Enum';
 
 const Sidebar: React.FC<{
     newMatchesPopupVisible: boolean,
@@ -20,8 +23,14 @@ const Sidebar: React.FC<{
 
     const [navbarPopupVisible, setNavbarPopupVisible] = useState(false)
     const [matchedUsers, setMatchedUsers] = useState([])
+    const [filterState, setFilterState] = useState({
+        nickname: "",
+        genre: "",
+        instrument: ""
+    })
 
-    const {isLoggedIn, userInfo} = useSelector((state: RootState) => state.UsersReducer)
+    const {isLoggedIn, userInfo, activeUser} = useSelector((state: RootState) => state.UsersReducer)
+    const dispatch = useDispatch()
 
     const navigate = useNavigate()
     const location = useLocation()
@@ -42,6 +51,8 @@ const Sidebar: React.FC<{
             try {
                 let res: any = getMatchedUsers().then((res) => {
                     setMatchedUsers(res.data)
+                    setActiveUser(matchedUsers[0])
+                    dispatch(setActiveUser(matchedUsers[0]) as any)
                 })
             } catch(e) {
                 console.log(e)
@@ -49,18 +60,47 @@ const Sidebar: React.FC<{
         }
     }, [location]);
 
-    useEffect(() => {
-        // alert()
-        // alert()
-        // window.setTimeout(async () => {
-        //   let res = await api.getMatchedUsers((userInfo as any).username);
-        //   if(res.data.length === 0) {
-        //     setNewMatchesAmount(res.data)
-        //     setNewMatchesPopupVisible(true)
-        //   }
-        // }, 1500)
-    }, [userInfo])
+    // useEffect(() => {
+    //   const getUsers = async () => {
+    //     const data = {
+    //       nickname: (userInfo as any).username,
+    //       musicalGenres: [],
+    //       musicalInstruments: []
+    //     }
+    //     let res = await api.getUsers(data)
+    //     return res
+    //   }
 
+    //   getUsers().then(res => {
+    //     setUsers(res.data)
+    //   })
+
+    // }, [])
+
+
+    const handleChange = (name: string, value: string) => {
+        setFilterState({
+            ...filterState,
+            [name]: value
+        })
+    }
+
+    const handleFilter = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const data = {
+            musicalGenres: [
+                filterState.genre
+            ],
+            musicalInstruments: [
+                filterState.instrument
+            ]
+        }
+        dispatch(filterUsers(data) as any)
+    }
+
+    const handleReset = () => {
+        dispatch(filterUsers(null) as any)
+    }
 
 
     return (
@@ -86,41 +126,54 @@ const Sidebar: React.FC<{
                         <img src={Logo} />
                     </a>
                 </div>
-
-                {(isLoggedIn && matchedUsers)  &&
-
-                    <div className='center_part'>
-                        {
-                            centerView === 'explore' ?
-                                <></>
-                                // <button onClick={() => {setIsViewAs(!isViewAs)}}>
-                                //   {!isViewAs ? 'view as' : 'exit view as'}
-                                // </button>
-                                : <div className='messagesContainer'>
-                                    {/* {
-                matchedUsers.map((item: any) => {
-                  return (
-                    <div>
-                      <p>{item.username}</p>
-                      <p>{item.lastMessage.senderUsername === (userInfo as any).username ? '↪' : '↩'} {item.lastMessage}</p>
-                    </div>
-                  )
-                })
-              } */}
-                                    <div className='active'>
-                                        <p>Maryam</p>
-                                        <p>↩ Great, what about your musical career?</p>
-                                    </div>
-                                    <div>
-                                        <p>Zura</p>
-                                        <p>↪ Thanks a lot</p>
-                                    </div>
-                                    <div>
-                                        <p>Ketevan</p>
-                                        <p>Tap to send message</p>
-                                    </div>
-                                </div> }
-                    </div>}
+                <div className='center_part'>
+                    {
+                        centerView === 'explore' ?
+                            <form className='filters' onSubmit={(e) => handleFilter(e)} onReset={() => handleReset()}>
+                                <p>Filters</p>
+                                <div>
+                                    <select name="genre" id=""
+                                            value={filterState.genre}
+                                            onChange={(e) => handleChange(e.target.name, e.target.value)}
+                                    >
+                                        <option  selected hidden value="">Select Genre...</option>
+                                        {(Object.values(MusicalGenres) as Array<keyof typeof MusicalGenres>).map((item) => {
+                                            return(
+                                                <option value={item}>{item}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <select name="instrument" id=""
+                                            value={filterState.instrument}
+                                            onChange={(e) => handleChange(e.target.name, e.target.value)}
+                                    >
+                                        <option  selected hidden value="">Select Instrument...</option>
+                                        {(Object.values(MusicalInstrument)).map((item) => {
+                                            return(
+                                                <option value={item}>{item}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <button type='submit'>filter</button>
+                                <button type='reset'>reset</button>
+                            </form>
+                            : <div className='messagesContainer'>
+                                {
+                                    matchedUsers.length > 0 && matchedUsers.map((item: any) => {
+                                        return (
+                                            <div onClick={() => dispatch(setActiveUser(item) as any)} className={`${item.matchedUser.id === (activeUser as any)?.matchedUser.id ? 'active' : ''}`}>
+                                                <p>{item.matchedUser.username}</p>
+                                                <p>{item.lastMessage?.senderUsername === (userInfo as any).username ? '↪' : '↩'} {item.lastMessage?.messageContent !== '' ? item.lastMessage?.messageContent : 'Tap to send message'}</p>
+                                            </div>
+                                        )
+                                    })
+                                }
+                            </div>
+                    }
+                </div>
 
                 <div className='bottom_part'>
                     <div>
@@ -137,7 +190,6 @@ const Sidebar: React.FC<{
             </aside>
 
             {navbarPopupVisible && <NavbarPopup setVisible={setNavbarPopupVisible} />}
-            {console.log(newMatchesPopupVisible, newMatchesAmount) }
             {(newMatchesPopupVisible && newMatchesAmount > 0) && <NewMatchesPopup setVisible={setNewMatchesPopupVisible} newMatchesAmount={newMatchesAmount} />}
         </>
     )

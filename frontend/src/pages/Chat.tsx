@@ -12,6 +12,7 @@ import Stomp from 'stompjs'
 import SockJS from "sockjs-client";
 import * as api from '../api/api'
 import { useSelector } from 'react-redux';
+import { formatTime } from '../utils/utils';
 
 const Chat = () => {
 
@@ -35,9 +36,8 @@ const Chat = () => {
     const dummyMessageRef = useRef() as MutableRefObject<HTMLDivElement>;
     const textareaRef = useRef() as MutableRefObject<HTMLTextAreaElement>;
 
-    const {isLoggedIn, userInfo} = useSelector((state: RootState) => state.UsersReducer)
+    const {isLoggedIn, userInfo, activeUser} = useSelector((state: RootState) => state.UsersReducer)
     const [stompClient, setStompClient] = useState(null)
-
     const videos = [
         'https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_4201d662-697d-4228-b04e-029a0705ddd2.webp',
         "https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_24fc451c-57cd-42a4-aced-03bc040f3201.webp",
@@ -46,15 +46,13 @@ const Chat = () => {
 
 
     const getMessages = async () => {
-        let res: any = await api.getMessages('x', 'yaa')
-        console.log(res)
+        console.log((userInfo as any).username, (activeUser as any)?.matchedUser.username)
+        let res: any = await api.getMessages((userInfo as any).username, (activeUser as any)?.matchedUser.username)
         setMessages(res)
     }
 
     useEffect(() => {
         // let res: any
-        getMessages()
-
         const socket = new SockJS('http://localhost:8080/ws');
         // socket.onopen = function() {
         //     console.log('successful');
@@ -92,12 +90,17 @@ const Chat = () => {
         dummyMessageRef.current.scrollIntoView()
     }, [messages])
 
+    useEffect(() => {
+        getMessages()
+    }, [activeUser])
+
 
     const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+
         const data = {
-            senderUsername: 'yaa',
-            receiverUsername: 'x',
+            senderUsername: (userInfo as any).username,
+            receiverUsername: (activeUser as any)?.matchedUser.username,
             messageContent: textareaRef.current.value,
             seen: false
         };
@@ -133,7 +136,9 @@ const Chat = () => {
         const data = {
             messageId: id,
             content: '',
-            delete: true
+            delete: true,
+            senderNickname: "yaa",
+            receiverNickname: "x"
         }
         await api.editMessage(data)
         // await getMessages()
@@ -149,7 +154,7 @@ const Chat = () => {
         <div id='chat'>
             <div className='chat'>
                 <div className='upperPart'>
-                    <p>You matched with Maryam on 8/23/2023</p>
+                    <p>{(activeUser as any)?.matchedUser.username}</p>
                     {/* <div></div> */}
                 </div>
                 <div className='centerPart'>
@@ -163,12 +168,12 @@ const Chat = () => {
                             let isDeleted = item.messageType === "DELETED"
                             return (
                                 <div className={`messageContainer ${isMine ? "" : "fromHer"} ${(isLast && isMine) ? "isLast" : ""}`}>
-                                    {isMine && <>
+                                    {(isMine && !isDeleted) && <>
                                         <img src={Delete} onClick={(e) => deleteMessage(item.id)}/>
                                         <img src={Edit} onClick={() => setEditingMessage(item)} />
                                     </>
                                     }
-                                    <time>7:58</time>
+                                    <time>{formatTime(item.sentTime)}</time>
                                     <div className={`message ${isDeleted ? "deleted" : ""}`}>{item.messageContent}</div>
                                 </div>
                             )

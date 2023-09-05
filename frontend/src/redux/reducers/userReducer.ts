@@ -1,22 +1,23 @@
-import { GET_USERS, CREATE_USER, LOGIN_USER, EDIT_USER, RESET_PASSWORD, FORGET_PASSWORD, LOGOUT_USER, GET_USER } from '../constants';
+import { GET_USERS, CREATE_USER, LOGIN_USER, EDIT_USER, RESET_PASSWORD, FORGET_PASSWORD, LOGOUT_USER, GET_USER, SET_ACTIVE_USER, FILTER_USERS } from '../constants';
 
 const initialState = {
     users: [],
     isLoggedIn: true,
     userInfo: {
-        id: 0,
-        username: 'yaa',
-        password: 's',
-        name: 'saba',
-        email: 'sa',
-        bio: '',
-        likedUsers:	[5],
-        matchedUsers:	[11],
-        mediaFilenames:	[],
-        newMatchedUsersCount: 0
+        // id: 1,
+        // username: '2',
+        // password: 's',
+        // name: 'saba',
+        // email: 'sa',
+        // bio: '',
+        // likedUsers:	[5],
+        // matchedUsers:	[11],
+        // mediaFilenames:	[],
+        // newMatchedUsersCount: 0
     },
     token: '',
-    stompClient: null
+    activeUser: null,
+    filterData: null
 }
 const UsersReducer = (state=initialState, action: any) => {
     switch(action.type) {
@@ -24,6 +25,11 @@ const UsersReducer = (state=initialState, action: any) => {
             return {
                 ...state,
                 users: action.payload
+            }
+        case SET_ACTIVE_USER:
+            return {
+                ...state,
+                activeUser: action.payload
             }
         case CREATE_USER:
             return {
@@ -66,22 +72,11 @@ const UsersReducer = (state=initialState, action: any) => {
                 userInfo: action.payload.userInfo,
                 token: action.payload.token
             }
-        // case UPDATE_TASK:
-        //     let post1 = state.posts.find(item => item._id === action.payload.postId)
-        //     const taskToEdit = post1.tasks.find(item => item._id === action.payload.taskId)
-        //     taskToEdit.fixed = action.payload.task.fixed
-        // return {
-        //     ...state,
-        // }
-        // case CHANGE_ORDER:
-        //     state.posts.find(item => item._id === action.payload.id).tasks = action.payload.newList
-        // return {
-        //     posts: [...state.posts]
-        // }
-        // case CREATE_POST:
-        // return {
-        //     posts: [...state.posts, action.payload]
-        // }
+        case FILTER_USERS:
+            return {
+                ...state,
+                filterData: action.payload
+            }
         default: return state
     }
 }

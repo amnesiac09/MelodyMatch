@@ -18,7 +18,7 @@ const SignIn: React.FC<{
 
     const [error, setError] = useState("")
     const [state, setState] = useState({
-        email: "",
+        username: "",
         password: "",
     })
     const handleChange = (name: string, value: string) => {
@@ -31,27 +31,19 @@ const SignIn: React.FC<{
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const data = {
-            id: 0,
-            email: state.email,
+            email: state.username,
             password: state.password,
         }
         try {
             setError("")
-            // const res = await api.loginUser(data)
+            await api.loginUser(data).then((res) => {
+                if(res.data) {
+                    console.log(res.data)
+                    dispatch(logInUser(res.data) as any);
+                    navigate("/explore")
+                }
+            })
             // if(res.data) {
-            await dispatch(logInUser({
-                "id": 21,
-                "username": "mirzashvilisaba21",
-                "password": "1",
-                "name": "aleko",
-                "email": "sw@gmail.com",
-                "bio": "",
-                "likedUsers": [],
-                "matchedUsers": [],
-                "mediaFilenames": [],
-                "newMatchedUsersCount": 0
-            }) as any);
-            navigate("/explore")
             // }
         } catch (err: any) {
             setError("Something went wrong!")
@@ -81,9 +73,9 @@ const SignIn: React.FC<{
             <h1 className='title'>Login</h1>
             <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => handleSubmit(e)}>
                 <div className='usernameOrEmail'>
-                    <label htmlFor="usernameOrEmail">Username or Email</label>
-                    <input type="text" name="email" id="usernameOrEmail" required
-                           value={state.email}
+                    <label htmlFor="usernameOrEmail">Username</label>
+                    <input type="text" name="username" id="usernameOrEmail" required
+                           value={state.username}
                            onChange={(e) => handleChange(e.target.name, e.target.value)}
                     />
                 </div>

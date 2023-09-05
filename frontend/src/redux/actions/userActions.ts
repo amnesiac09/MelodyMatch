@@ -1,4 +1,4 @@
-import {GET_USERS, CREATE_USER, LOGIN_USER, EDIT_USER, RESET_PASSWORD, FORGET_PASSWORD, LOGOUT_USER, GET_USER} from '../constants';
+import {GET_USERS, CREATE_USER, LOGIN_USER, EDIT_USER, RESET_PASSWORD, FORGET_PASSWORD, LOGOUT_USER, GET_USER, SET_ACTIVE_USER, FILTER_USERS} from '../constants';
 // import * as api from '../../api/usersApi';
 import { Action, Dispatch } from 'redux';
 
@@ -49,5 +49,19 @@ export const getUser = (data: {userInfo: IUser, token: string}) => async (dispat
         type: GET_USER,
         payload: data
     });
+};
+
+export const setActiveUser = (data: any) => async (dispatch: Dispatch<Action>) => {
+    dispatch({
+        type: SET_ACTIVE_USER,
+        payload: data
+    })
+};
+
+export const filterUsers = (data: any) => async (dispatch: Dispatch<Action>) => {
+    dispatch({
+        type: FILTER_USERS,
+        payload: data
+    })
 };
 
