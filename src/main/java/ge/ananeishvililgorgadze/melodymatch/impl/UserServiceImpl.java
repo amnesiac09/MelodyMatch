@@ -1,7 +1,5 @@
 package ge.ananeishvililgorgadze.melodymatch.impl;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import ge.ananeishvililgorgadze.melodymatch.domain.MessageEntity;
 import ge.ananeishvililgorgadze.melodymatch.domain.MusicalGenre;
 import ge.ananeishvililgorgadze.melodymatch.domain.MusicalInstrument;
@@ -17,16 +15,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -39,11 +39,8 @@ public class UserServiceImpl implements UserService {
 	@Value("${s3.bucketName}")
 	private String bucketName;
 
-	@Value("${s3.maxFileSizeInMB}")
-	private long maxFileSizeInMB;
-
 	@Autowired
-	private AmazonS3 s3Client;
+	private S3Client s3Client;
 
 	public UserServiceImpl(UserRepository userRepository, MessageRepository messageRepository, PasswordEncoder encoder) {
 		this.userRepository = userRepository;
@@ -123,21 +120,23 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void uploadFile(MultipartFile file, int userId) {
-		if (file.getSize() > maxFileSizeInMB * 1024 * 1024) {
-			log.error("File size is too large");
-		} else {
-			File fileObj = convertMultiPartFileToFile(file);
+	public void uploadFile(MultipartFile file, long userId) {
+		try {
+			ByteBuffer byteBuffer = ByteBuffer.wrap(file.getBytes());
 			String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-			s3Client.putObject(new PutObjectRequest(bucketName, fileName, fileObj));
-			fileObj.delete();
-			UserEntity user = getUser(userId);
+
+			UserEntity user = userRepository.findById(userId).orElseThrow();
+			s3Client.putObject(builder -> builder.bucket(bucketName).key(fileName), RequestBody.fromByteBuffer(byteBuffer));
+
 			List<String> currentMedia = user.getMediaFilenames();
-			currentMedia.add(fileName);
+			currentMedia.add(getFileUrl(fileName));
 			user.setMediaFilenames(currentMedia);
 			editUser(user);
+		} catch (IOException e) {
+			log.error(e.getMessage());
 		}
 	}
+
 
 	@Override
 	public String getFileUrl(String filename) {
@@ -153,41 +152,80 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void deleteFile(String filename, int userId) {
-		s3Client.deleteObject(bucketName, filename);
-		UserEntity user = getUser(userId);
-		List<String> currentMedia = user.getMediaFilenames();
-		currentMedia.remove(filename);
-		user.setMediaFilenames(currentMedia);
-		editUser(user);
+		try {
+			DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+					.bucket(bucketName)
+					.key(filename)
+					.build();
+
+			DeleteObjectResponse deleteObjectResponse = s3Client.deleteObject(deleteObjectRequest);
+
+			if (deleteObjectResponse.sdkHttpResponse().isSuccessful()) {
+				UserEntity user = getUser(userId);
+				List<String> currentMedia = user.getMediaFilenames();
+				currentMedia.remove(filename);
+				user.setMediaFilenames(currentMedia);
+				editUser(user);
+			} else {
+				log.error("Object deletion failed.");
+			}
+		} catch (Exception e) {
+			log.error("Error deleting object: " + e.getMessage());
+		}
+
 	}
 
 	public List<UserEntity> getUsers(UserFilter userFilter) {
+		if (userFilter.getMusicalGenres() == null && userFilter.getMusicalInstruments() == null && userFilter.getNickname() == null) {
+			return userRepository.findAll();
+		}
 		UserEntity user = userRepository.findByUsername(userFilter.getNickname()).orElseThrow();
 		List<UserEntity> filteredUsers = userRepository.findAll();
 		filteredUsers.remove(user);
 		List<Long> likedUsers = user.getLikedUsers();
 		List<Long> matchedUsers = user.getMatchedUsers();
 		filteredUsers.removeIf(currentUser -> likedUsers.contains(currentUser.getId()) || matchedUsers.contains(currentUser.getId()));
-		filterUsersByInstrument(filteredUsers, user.getMusicalInstruments());
-		filterUsersByGenres(filteredUsers, user.getMusicalGenres());
+		filterUsersByInstrument(filteredUsers, userFilter.getMusicalInstruments());
+		filterUsersByGenres(filteredUsers, userFilter.getMusicalGenres());
 		return filteredUsers;
+
 	}
 	private void filterUsersByInstrument(List<UserEntity> users, List<MusicalInstrument> musicalInstruments){
-		for(UserEntity currentUser : users){
-			for(MusicalInstrument musicalInstrument : currentUser.getMusicalInstruments()){
-				if(!musicalInstruments.contains(musicalInstrument)){
-					users.remove(currentUser);
+		if(musicalInstruments == null || musicalInstruments.size() == 0){
+			return;
+		}
+		Iterator<UserEntity> iterator = users.iterator();
+		while (iterator.hasNext()) {
+			UserEntity currentUser = iterator.next();
+			boolean removeCurrentUser = true;
+			for (MusicalInstrument musicalInstrument : currentUser.getMusicalInstruments()) {
+				if (musicalInstruments.contains(musicalInstrument)) {
+					removeCurrentUser = false;
+					break;
 				}
+			}
+			if (removeCurrentUser) {
+				iterator.remove();
 			}
 		}
 	}
 
 	private void filterUsersByGenres(List<UserEntity> users, List<MusicalGenre> musicalGenres){
-		for(UserEntity currentUser : users){
-			for(MusicalGenre musicalGenre : currentUser.getMusicalGenres()){
-				if(!musicalGenres.contains(musicalGenre)){
-					users.remove(currentUser);
+		if(musicalGenres == null || musicalGenres.size() == 0){
+			return;
+		}
+		Iterator<UserEntity> iterator = users.iterator();
+		while (iterator.hasNext()) {
+			UserEntity currentUser = iterator.next();
+			boolean removeCurrentUser = true;
+			for (MusicalGenre musicalGenre : currentUser.getMusicalGenres()) {
+				if (musicalGenres.contains(musicalGenre)) {
+					removeCurrentUser = false;
+					break;
 				}
+			}
+			if (removeCurrentUser) {
+				iterator.remove();
 			}
 		}
 	}
@@ -204,6 +242,21 @@ public class UserServiceImpl implements UserService {
 			}
 		}
 		return matchedUsers;
+	}
+
+	@Override
+	public List<String> getFileUrlsForUser(String username) {
+		UserEntity user = userRepository.findByUsername(username).orElseThrow();
+		List<String> urls = new ArrayList<>();
+		for (String filename : user.getMediaFilenames()) {
+			urls.add(getFileUrl(filename));
+		}
+		return urls;
+	}
+
+	@Override
+	public UserEntity getUserByUsername(String username) {
+		return userRepository.findByUsername(username).orElseThrow();
 	}
 
 	public MessageEntity getLastMessage(String username1, String username2) {
