@@ -26,4 +26,6 @@ public interface UserService {
 
 	List<MatchedUserResponse> getMatchedUsers(String username);
 
+	List<String> getFileUrlsForUser(long userId);
+
 }

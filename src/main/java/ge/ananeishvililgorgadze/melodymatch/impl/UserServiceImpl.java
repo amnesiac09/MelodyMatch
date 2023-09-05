@@ -162,6 +162,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	public List<UserEntity> getUsers(UserFilter userFilter) {
+		if (userFilter.getMusicalGenres() == null && userFilter.getMusicalInstruments() == null && userFilter.getNickname() == null) {
+			return userRepository.findAll();
+		}
 		UserEntity user = userRepository.findByUsername(userFilter.getNickname()).orElseThrow();
 		List<UserEntity> filteredUsers = userRepository.findAll();
 		filteredUsers.remove(user);
@@ -204,6 +207,16 @@ public class UserServiceImpl implements UserService {
 			}
 		}
 		return matchedUsers;
+	}
+
+	@Override
+	public List<String> getFileUrlsForUser(long userId) {
+		UserEntity user = getUser(userId);
+		List<String> urls = new ArrayList<>();
+		for (String filename : user.getMediaFilenames()) {
+			urls.add(getFileUrl(filename));
+		}
+		return urls;
 	}
 
 	public MessageEntity getLastMessage(String username1, String username2) {

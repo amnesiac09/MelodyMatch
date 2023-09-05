@@ -6,3 +6,6 @@ export const RESET_PASSWORD = 'RESET_PASSWORD';
 export const FORGET_PASSWORD = 'FORGET_PASSWORD';
 export const LOGOUT_USER = 'LOGOUT_USER';
 export const GET_USER = 'GET_USER';
+export const SET_ACTIVE_USER = 'SET_ACTIVE_USER'
+export const FILTER_USERS = 'FILTER_USERS'
+//

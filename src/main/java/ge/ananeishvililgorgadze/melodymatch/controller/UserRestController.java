@@ -114,7 +114,7 @@ public class UserRestController {
 			@ApiResponse(responseCode = "404", description = "File not found"),
 			@ApiResponse(responseCode = "500", description = "Internal server error"),
 	})
-	public ResponseEntity<?> downloadFile(@PathVariable String filename) {
+	public ResponseEntity<?> getFileUrl(@PathVariable String filename) {
 		try {
 			String fileUrl = userService.getFileUrl(filename);
 			if (fileUrl != null && !fileUrl.isEmpty()) {
@@ -168,5 +168,18 @@ public class UserRestController {
 	})
 	public List<MatchedUserResponse> getMatchedUsers(@PathVariable("username") String username) {
 		return userService.getMatchedUsers(username);
+	}
+
+	@GetMapping(value = "getFileUrls/{id}", produces = "application/json")
+	@Parameter(name = "id", schema = @Schema(implementation = Long.class), in = ParameterIn.PATH, description = "Id of user")
+	@Operation(summary = "Get user file urls by id", responses = {
+			@ApiResponse(responseCode = "200",
+					description = "Successfully retrieved user",
+					content = @Content(schema = @Schema(implementation = List.class))),
+			@ApiResponse(responseCode = "400", description = "One of the query parameters has a bad value"),
+			@ApiResponse(responseCode = "500", description = "Error occurred while retrieving user file urls"),
+	})
+	public List<String> getFileUrlsForUser(@PathVariable("id") long userId) {
+		return userService.getFileUrlsForUser(userId);
 	}
 }

@@ -36,4 +36,17 @@ export const getMatchedUsers = async (username: string) => {
     return await axios.get(`${url}/user/getMatchedUsers/${username}`, config)
 }
 
+export const getUsers = async (data: any) => {
+    return await axios.post(`${url}/user/getUsers`, data)
+}
+
+export const likeUser = async (id1: number, id2: any) => {
+    return await axios.put(`${url}/user/likeUser`, {}, {
+        params: {
+            firstId: id1,
+            secondId: id2
+        }
+    }).then(res => console.log(res))
+}
+
 
