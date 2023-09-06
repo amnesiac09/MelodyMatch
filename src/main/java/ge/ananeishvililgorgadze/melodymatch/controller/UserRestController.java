@@ -102,7 +102,7 @@ public class UserRestController {
 			@ApiResponse(responseCode = "500", description = "Error occurred while uploading file"),
 	})
 	public ResponseEntity<String> uploadFile(
-			@RequestParam("file") MultipartFile file,
+			@RequestPart("file") MultipartFile file,
 			@RequestParam("userId") int userId) {
 		userService.uploadFile(file, userId);
 		return ResponseEntity.ok("File uploaded successfully");
@@ -170,16 +170,29 @@ public class UserRestController {
 		return userService.getMatchedUsers(username);
 	}
 
-	@GetMapping(value = "getFileUrls/{id}", produces = "application/json")
-	@Parameter(name = "id", schema = @Schema(implementation = Long.class), in = ParameterIn.PATH, description = "Id of user")
+	@GetMapping(value = "getFileUrls/{username}", produces = "application/json")
+	@Parameter(name = "username", schema = @Schema(implementation = String.class), in = ParameterIn.PATH, description = "Username of user")
 	@Operation(summary = "Get user file urls by id", responses = {
 			@ApiResponse(responseCode = "200",
-					description = "Successfully retrieved user",
+					description = "Successfully retrieved user file urls",
 					content = @Content(schema = @Schema(implementation = List.class))),
 			@ApiResponse(responseCode = "400", description = "One of the query parameters has a bad value"),
 			@ApiResponse(responseCode = "500", description = "Error occurred while retrieving user file urls"),
 	})
-	public List<String> getFileUrlsForUser(@PathVariable("id") long userId) {
-		return userService.getFileUrlsForUser(userId);
+	public List<String> getFileUrlsForUser(@PathVariable("username") String username) {
+		return userService.getFileUrlsForUser(username);
+	}
+
+	@GetMapping(value = "getByUsername/{username}", produces = "application/json")
+	@Parameter(name = "username", schema = @Schema(implementation = String.class), in = ParameterIn.PATH, description = "Username of user")
+	@Operation(summary = "Get user by username", responses = {
+			@ApiResponse(responseCode = "200",
+					description = "Successfully retrieved user",
+					content = @Content(schema = @Schema(implementation = UserDTO.class))),
+			@ApiResponse(responseCode = "400", description = "One of the query parameters has a bad value"),
+			@ApiResponse(responseCode = "500", description = "Error occurred while retrieving user"),
+	})
+	public UserDTO getUserByUsername(@PathVariable("username") String username) {
+		return userMapper.toDTO(userService.getUserByUsername(username));
 	}
 }

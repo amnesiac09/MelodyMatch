@@ -17,7 +17,7 @@ public interface UserService {
 	UserEntity editUser(UserEntity user);
 	boolean likeUser(Long firstUserId, Long secondUserId);
 
-	void uploadFile(MultipartFile file, int userId);
+	void uploadFile(MultipartFile file, long userId);
 
 	String getFileUrl(String filename);
 
@@ -26,6 +26,8 @@ public interface UserService {
 
 	List<MatchedUserResponse> getMatchedUsers(String username);
 
-	List<String> getFileUrlsForUser(long userId);
+	List<String> getFileUrlsForUser(String username);
+
+	UserEntity getUserByUsername(String username);
 
 }
