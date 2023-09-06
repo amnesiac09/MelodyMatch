@@ -3,6 +3,9 @@ import {useDispatch, useSelector} from "react-redux"
 import * as api from '../api/api'
 import { useNavigate } from 'react-router-dom';
 import { logInUser } from '../redux/actions/userActions';
+import jwt_decode from "jwt-decode";
+import { useCookies } from 'react-cookie';
+
 
 const SignIn: React.FC<{
     setNewMatchesPopupVisible: React.Dispatch<React.SetStateAction<boolean>>,
@@ -15,6 +18,7 @@ const SignIn: React.FC<{
     const navigate = useNavigate()
     const dispatch = useDispatch();
     const {userInfo, isLoggedIn} = useSelector((state: RootState) => state.UsersReducer)
+    const [cookies, setCookie, removeCookie] = useCookies(['rf_token']);
 
     const [error, setError] = useState("")
     const [state, setState] = useState({
@@ -31,16 +35,21 @@ const SignIn: React.FC<{
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const data = {
-            email: state.username,
+            username: state.username,
             password: state.password,
         }
         try {
             setError("")
-            await api.loginUser(data).then((res) => {
+            await api.loginUser(data).then(async (res) => {
                 if(res.data) {
-                    console.log(res.data)
-                    dispatch(logInUser(res.data) as any);
-                    navigate("/explore")
+                    const rf_token = res.data
+                    const decoded = jwt_decode(rf_token);
+
+                    setCookie('rf_token', rf_token)
+
+                    await api.getUser((decoded as any).sub).then((res) => {
+                        dispatch(logInUser(res.data) as any);
+                    })
                 }
             })
             // if(res.data) {
@@ -58,10 +67,8 @@ const SignIn: React.FC<{
             return;
         }
         window.setTimeout(async () => {
-            let res = await api.getMatchedUsers((userInfo as any).username);
-            res.data = [2]
-            if(res.data.length > 0) {
-                setNewMatchesAmount(res.data.length)
+            if((userInfo as any).newMatchedUsersCount > 0) {
+                setNewMatchesAmount((userInfo as any).newMatchedUsersCount)
                 setNewMatchesPopupVisible(true)
             }
         }, 1500)
@@ -89,8 +96,6 @@ const SignIn: React.FC<{
                 {error && <p className='error'>{error}</p>}
                 <button>Login</button>
             </form>
-
-            <a href="/forget-password">Lost your password?</a>
 
             <a href="/registration">Register</a>
         </div>

@@ -2,7 +2,7 @@ import {GET_USERS, CREATE_USER, LOGIN_USER, EDIT_USER, RESET_PASSWORD, FORGET_PA
 // import * as api from '../../api/usersApi';
 import { Action, Dispatch } from 'redux';
 
-export const addUser = (data: IUser) => async (dispatch: Dispatch<Action>) => {
+export const addUser = (data: any) => async (dispatch: Dispatch<Action>) => {
     dispatch({
         type: CREATE_USER,
         payload: data

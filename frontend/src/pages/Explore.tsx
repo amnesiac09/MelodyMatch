@@ -11,22 +11,19 @@ import ArrowDown from '../assets/images/arrowDown.png'
 import { useDispatch, useSelector } from 'react-redux';
 import * as api from '../api/api'
 import { connect } from 'react-redux';
+import Spinner from '../assets/images/spinner.png';
 
 const Explore = () => {
 
-    const [activeVideoIndex, setActiveVideoIndex] = useState(0)
-    const [users, setUsers] = useState()
+    const [activeMediaIndex, setActiveMediaIndex] = useState(0)
+    const [users, setUsers] = useState([])
     const [isUserAmountCompleted, setIsUserAmountCompleted] = useState(false)
-
-    const videos = [
-        'https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_4201d662-697d-4228-b04e-029a0705ddd2.webp',
-        "https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_24fc451c-57cd-42a4-aced-03bc040f3201.webp",
-        'https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_4201d662-697d-4228-b04e-029a0705ddd2.webp',
-    ]
 
     const handleDrag = (e: React.DragEvent) => {
         console.log(e)
     }
+
+    const [showLoading, setShowLoading] = useState(false)
 
     const [isInfoVisible, setIsInfoVisible] = useState(false)
 
@@ -46,9 +43,13 @@ const Explore = () => {
             return res
         }
 
+        setShowLoading(true)
         getUsers().then(res => {
             setUsers(res.data)
-            setActiveUserId(res.data[0].id)
+            if(res.data.length > 0) {
+                setActiveUserId(res.data[0].id)
+            }
+            setShowLoading(false)
         })
 
     }, [filterData])
@@ -82,25 +83,40 @@ const Explore = () => {
                     (users as any)?.map((user: any, i:number) => {
                         return(
                             <div key={i} className={`videoContainer ${(activeUserId as any) === user.id ? 'active' : ''}`} draggable onDrag={(e) => handleDrag(e)}>
-                                {videos.map((item: string, index:number) => {
-                                    return (
-                                        activeVideoIndex === index && <img src={'https://images.pexels.com/photos/10434979/pexels-photo-10434979.jpeg?cs=srgb&dl=pexels-cottonbro-studio-10434979.jpg&fm=jpg'} />
-                                        // <img src={item} alt="" className={activeVideoIndex === index ? 'active': ''} />
-                                    )
-                                })}
+                                {
+                                    user.mediaFilenames.map((item: string, index:number) => {
+                                        console.log(index, item)
+                                        let isVideo = item.includes('mp4') || item.includes('wav')
+                                        return (
+                                            activeMediaIndex === index && ( !isVideo ?
+                                                <img
+                                                    src={item}
+                                                    key={index}
+                                                    // onLoad={}
+                                                />
+                                                :
+                                                <video
+                                                    autoPlay
+                                                    key={index}
+                                                    src={item}
+                                                >
+                                                </video>)
+                                        )
+                                    })
+                                }
                                 <div className='arrows'>
-                                    <div onClick={() => setActiveVideoIndex(activeVideoIndex-1)} className={`arrowLeft ${activeVideoIndex !== 0 ? 'active' : ''}`}>
+                                    <div onClick={() => setActiveMediaIndex(activeMediaIndex-1)} className={`arrowLeft ${activeMediaIndex !== 0 ? 'active' : ''}`}>
                                         <img src={ArrowLeft} alt="" />
                                     </div>
-                                    <div onClick={() => setActiveVideoIndex(activeVideoIndex+1)} className={`arrowRight ${activeVideoIndex !== videos.length - 1 ? 'active': ''}`}>
+                                    <div onClick={() => setActiveMediaIndex(activeMediaIndex+1)} className={`arrowRight ${activeMediaIndex !== user.mediaFilenames.length - 1 ? 'active': ''}`}>
                                         <img src={ArrowRight} alt="" />
                                     </div>
                                 </div>
                                 <div className='bullets'>
                                     {
-                                        videos.map((item: string, index:number) => {
+                                        user.mediaFilenames.map((item: string, index:number) => {
                                             return (
-                                                <div onClick={() => setActiveVideoIndex(index)} className={activeVideoIndex === index ? 'active' : ''}></div>
+                                                <div onClick={() => setActiveMediaIndex(index)} className={activeMediaIndex === index ? 'active' : ''}></div>
                                             )
                                         })
                                     }
@@ -108,7 +124,7 @@ const Explore = () => {
                                 {!isInfoVisible &&
                                     <div className='shortInfo'>
                                         <div>
-                                            <p>Maryami</p>
+                                            <p>{user.username}</p>
                                             <img src={Info} alt="" onClick={() => setIsInfoVisible(true)} />
                                         </div>
                                     </div>
@@ -116,23 +132,43 @@ const Explore = () => {
                                 {isInfoVisible && <div className='info'>
                                     <div className='basic'>
                                         <div className='nameAndAgeContainer'>
-                                            <p className='nameAndAge'>aleko 22</p>
+                                            <p className='nameAndAge'>{user.name}</p>
                                             <img src={ArrowDown} alt="" className='close' onClick={() => {setIsInfoVisible(false); document.querySelector('#explore')?.scrollTo({top: 0})}} />
                                         </div>
                                         <div className='gender'>
-                                            <img src={GenderMan} alt="" />
-                                            <p>Man</p>
+                                            <img src={user.gender === "MALE" ? GenderMan : GenderWoman} alt="" />
+                                            <p>{user.gender === "MALE" ? 'Man' : 'Woman'}</p>
                                         </div>
                                         <div className='destination'>
                                             <img src={Home} alt="" />
-                                            <p>Lives in Tbilisi</p>
+                                            <p>Lives in {user.location}</p>
                                         </div>
                                     </div>
                                     <div className='more'>
                                         <div className='passions'>
-                                            <p>Passions</p>
+                                            <p>Favorite Genre</p>
                                             <div>
-                                                <div>guitar</div><div>violin</div><div>singing</div><div>coffee</div><div>sneakers</div>
+                                                {user.musicalGenres.map((item: any) => {
+                                                    return (
+                                                        <div>{item}</div>
+                                                    )
+                                                })}
+                                            </div>
+                                        </div>
+                                        <div className='passions'>
+                                            <p>Favorite Instrument</p>
+                                            <div>
+                                                {user.musicalInstruments.map((item: any) => {
+                                                    return (
+                                                        <div>{item}</div>
+                                                    )
+                                                })}
+                                            </div>
+                                        </div>
+                                        <div className='passions'>
+                                            <p>Bio</p>
+                                            <div>
+                                                {user.bio}
                                             </div>
                                         </div>
                                     </div>
@@ -144,10 +180,13 @@ const Explore = () => {
                     : <p>there is not other users to show</p>
             }
 
-            {(activeUserId && !isUserAmountCompleted) && <div className='buttons'>
+            {(activeUserId && !isUserAmountCompleted && users.length > 0) && <div className='buttons'>
                 <img src={Unlike} alt="" onClick={() => unLikeUser()} />
                 <img src={Like} alt="" onClick={() => likeUser()} />
             </div>
+            }
+            {
+                showLoading && <img className='loading' src={Spinner} />
             }
         </div>
     )

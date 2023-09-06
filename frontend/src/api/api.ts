@@ -17,9 +17,9 @@ export const editMessage = async (data: any) => {
     return await axios.put(`${url}/chat/updateMessage`, data)
 }
 
-export const getUser = async (id: number) => {
-    return await axios.get(`${url}/user/get/${id}`, config)
-}
+// export const getUser = async (id: number) => {
+//     return await axios.get(`${url}/user/get/${id}`, config)
+// }
 
 export const editUser = async (data: any) => {
     return await axios.put(`${url}/user/update`, data)
@@ -63,6 +63,16 @@ export const uploadFile = async (id: any, formData: any) => {
             }
         }
     )
+}
+export const deleteFile = async (filename: string, userId: any) => {
+
+}
+export const getFileUrls = async (username: string) => {
+    return await axios.get(`${url}/user/getMatchedUsers/${username}`, config)
+}
+
+export const getUser = async (username: string) => {
+    return await axios.get(`${url}/user/getByUsername/${username}`, config)
 }
 
 

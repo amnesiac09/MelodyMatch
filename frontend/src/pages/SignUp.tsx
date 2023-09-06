@@ -3,16 +3,24 @@ import * as api from '../api/api'
 import { useNavigate } from 'react-router-dom';
 import {useDispatch, useSelector} from "react-redux"
 import { addUser } from '../redux/actions/userActions';
+import { MusicalGenres, MusicalInstrument } from '../enums/Enum';
+import jwt_decode from "jwt-decode";
+import { useCookies } from 'react-cookie';
+import Plus from '../assets/images/plus.png'
 
 const SignUp = () => {
+    const {userInfo, isLoggedIn} = useSelector((state: RootState) => state.UsersReducer)
+    const [cookies, setCookie, removeCookie] = useCookies(['rf_token']);
 
     const navigate = useNavigate()
     const dispatch = useDispatch();
 
     const [activeStep, setActiveStep] = useState(1)
     const steps: any = ['Account', 'Personal', 'Content']
-    const [videosUploadedAmount, setVideosUploadedAmount] = useState(0)
-    const videoMaxAmount = 9
+    const mediaMaxAmount = 9
+    const mediaContainerRef: any = useRef([]);
+    const videoRef: any = useRef([]);
+    const imageRef: any = useRef([]);
     const [error, setError] = useState("")
     const [state, setState] = useState({
         name: "",
@@ -21,9 +29,12 @@ const SignUp = () => {
         password: "",
         cf_password: "",
         bio: "",
+        location: "",
+        gender: "",
+        genre: "",
+        instrument: ""
     })
-
-    const ref = useRef() as MutableRefObject<HTMLInputElement>;
+    const [reservedData, setReservedData] = useState()
 
     const handleChange = (name: string, value: string) => {
         setState({
@@ -39,49 +50,90 @@ const SignUp = () => {
             return setError('Passwords do not match!')
         }
 
+        let shouldRegister: boolean = activeStep === 2
         let isCompleted: boolean = activeStep === 3
-        // if(!isCompleted) {
-        //     setActiveStep(activeStep+1)
-        // } else {
-        const data = {
-            id: 0,
-            username: state.username,
-            password: state.password,
-            name: state.name,
-            email: state.email,
-            bio: state.bio,
-            likedUsers: [
-
-            ],
-            matchedUsers: [
-
-            ],
-            mediaFilenames: [
-
-            ],
-            newMatchedUsersCount: 0
-        }
-        try {
-            setError("")
-            const res = await api.addUser(data)
-            if(res.data) {
-                dispatch(addUser(res.data) as any);
-                navigate("/explore")
+        if(!shouldRegister) {
+            if(!isCompleted) {
+                setActiveStep(activeStep+1)
+            } else {
+                //get token
+                const data = {
+                    username: (reservedData as any).username,
+                    password: (state).password
+                }
+                await api.loginUser(data).then(res => {
+                    if(res.data) {
+                        const rf_token = res.data
+                        setCookie('rf_token', rf_token)
+                        dispatch(addUser(reservedData) as any)
+                    }
+                })
+                //
             }
-        } catch (err: any) {
-            setError("Something went wrong!")
+        } else {
+            const data = {
+                id: 0,
+                username: state.username,
+                password: state.password,
+                name: state.name,
+                gender: state.gender,
+                location: state.location,
+                email: state.email,
+                bio: state.bio,
+                likedUsers: [
+
+                ],
+                matchedUsers: [
+
+                ],
+                mediaFilenames: [
+
+                ],
+                musicalInstruments: [
+                    state.instrument
+                ],
+                musicalGenres: [
+                    state.genre
+                ],
+                newMatchedUsersCount: 0
+            }
+            try {
+                // setError("")
+                await api.addUser(data).then((res) => {
+                    if(res.data) {
+                        setReservedData(res.data)
+                        setActiveStep(activeStep+1)
+                        // dispatch(addUser(res.data) as any);
+                    }
+                })
+            } catch (err: any) {
+                // setError("Something went wrong!")
+            }
         }
-        // }
     }
 
-    const handleUpload = (e: React.ChangeEvent) => {
-        setVideosUploadedAmount(videosUploadedAmount+1)
+    const handleFileUpload = async (e: React.ChangeEvent) => {
         let target = e.target as HTMLInputElement
-        let activeDiv = ref.current.querySelector(`div:nth-child(${videosUploadedAmount + 1})`) as HTMLDivElement
-        console.log(activeDiv)
-        let imgTag = activeDiv.querySelector('img') as HTMLImageElement
-        activeDiv.classList.add('active')
-        imgTag.src = 'https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_24fc451c-57cd-42a4-aced-03bc040f3201.webp'
+        let file = (target as any).files[0]
+        let uploadedContentAmount: number = videoRef.current.filter((item: HTMLImageElement) => item.currentSrc !== "").length + imageRef.current.filter((item: HTMLImageElement) => item.currentSrc !== "").length
+
+        let isVideo = file.type.startsWith('video')
+        mediaContainerRef.current[uploadedContentAmount].classList.add(isVideo ? 'isVideo' : 'isImage')
+
+        if(isVideo) {
+            videoRef.current[uploadedContentAmount].src = URL.createObjectURL(file)
+        } else {
+            imageRef.current[uploadedContentAmount].src = URL.createObjectURL(file)
+        }
+        mediaContainerRef.current[uploadedContentAmount].classList.add('uploaded')
+
+        const formData = new FormData();
+        formData.append("file", (target as any).files[0]);
+
+        await api.uploadFile((reservedData as any).id, formData)
+    }
+
+    const handleFileDelete = () => {
 
     }
 
@@ -107,15 +159,11 @@ const SignUp = () => {
                             <p className='required'>Full Name</p>
                             <div>
                                 <div>
-                                    <label htmlFor="firstName">First Name</label>
+                                    <label htmlFor="firstName">Enter Name</label>
                                     <input type="text" name="name" id="firstName" required
                                            value={state.name}
                                            onChange={(e) => handleChange(e.target.name, e.target.value)}
                                     />
-                                </div>
-                                <div>
-                                    <label htmlFor="lastName">Last Name</label>
-                                    <input type="text" name="lastName" id="lastName" required/>
                                 </div>
                             </div>
                         </div>
@@ -154,28 +202,33 @@ const SignUp = () => {
                             <p className='required'>City</p>
                             <div>
                                 <div>
-                                    <select name="city" id="" required>
+                                    <select name="location" id="" required
+                                            value={state.location}
+                                            onChange={(e) => handleChange(e.target.name, e.target.value)}
+                                    >
                                         <option disabled selected hidden value="">Select...</option>
                                         <option value="tbilisi">Tbilisi</option>
                                         <option value="gori">Gori</option>
                                         <option value="batumi">Batumi</option>
                                         <option value="xashuri">Xashuri</option>
+                                        <option value="kutaisi">Kutaisi</option>
+                                        <option value="telavi">Telavi</option>
+                                        <option value="poti">Poti</option>
+                                        <option value="chiatura">Chiatura</option>
+                                        <option value="kobuleti">Kobuleti</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
                         <div className='usernameAndNumber'>
+                            <p className='required'>Username</p>
                             <div>
                                 <div>
-                                    <label htmlFor="username" className='required'>Username</label>
+                                    <label htmlFor="username">Enter Username</label>
                                     <input type="text" name="username" id="username" required
                                            value={state.username}
                                            onChange={(e) => handleChange(e.target.name, e.target.value)}
                                     />
-                                </div>
-                                <div>
-                                    <label htmlFor="phoneNumber">Phone Number</label>
-                                    <input placeholder='e.g. +99555123456' type="tel" name="phoneNumber" id="phoneNumber" />
                                 </div>
                             </div>
                         </div>
@@ -183,25 +236,14 @@ const SignUp = () => {
                             <p className='required'>Gender</p>
                             <div>
                                 <div>
-                                    <select name="gender" id="" required>
+                                    <select name="gender" id="" required
+                                            value={state.gender}
+                                            onChange={(e) => handleChange(e.target.name, e.target.value)}
+                                    >
                                         <option disabled selected hidden value="">Select...</option>
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
+                                        <option value="MALE">Male</option>
+                                        <option value="FEMALE">Female</option>
                                     </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div className='date'>
-                            <p className='required'>Date Of Birth</p>
-                            <div>
-                                <div>
-                                    <input placeholder='DD' type="number" name="day" required min={1} max={31} />
-                                </div>
-                                <div>
-                                    <input placeholder='MM' type="number" name="month" required min={1} max={12}/>
-                                </div>
-                                <div>
-                                    <input placeholder='YYYY' type="number" name="year" required min={1900} max={new Date().getFullYear()}/>
                                 </div>
                             </div>
                         </div>
@@ -218,30 +260,47 @@ const SignUp = () => {
                     <div>
                         <form onSubmit={(e: React.FormEvent) => handleSubmit(e)}>
                             <div className='yourPassions'>
-                                <p className='required'>Passions</p>
+                                <p className='required'>Favorite Musical Genre</p>
                                 <div>
                                     <div>
-                                        <select name="city" id="">
-                                            <option value="tbilisi">Guitar</option>
-                                            <option value="gori">Piano</option>
-                                            <option value="batumi">Violin</option>
-                                            <option value="xashuri">Drum</option>
+                                        <select name="genre" id="genre" required
+                                                value={state.genre}
+                                                onChange={(e) => handleChange(e.target.name, e.target.value)}
+                                        >
+                                            <option  selected hidden value="">Select Genre...</option>
+                                            {(Object.values(MusicalGenres) as Array<keyof typeof MusicalGenres>).map((item) => {
+                                                return(
+                                                    <option value={item}>{item}</option>
+                                                )
+                                            })}
                                         </select>
                                     </div>
                                 </div>
                             </div>
                             <div className='someonePassions'>
-                                <p className='required'>Passions you are looking for</p>
+                                <p className='required'>Favorite Musical Instrument</p>
                                 <div>
                                     <div>
-                                        <select name="city" id="">
-                                            <option value="tbilisi">Guitar</option>
-                                            <option value="gori">Piano</option>
-                                            <option value="batumi">Violin</option>
-                                            <option value="xashuri">Drum</option>
+                                        <select name="instrument" id="instrument" required
+                                                value={state.instrument}
+                                                onChange={(e) => handleChange(e.target.name, e.target.value)}
+                                        >
+                                            <option  selected hidden value="">Select Instrument...</option>
+                                            {(Object.values(MusicalInstrument) as Array<keyof typeof MusicalInstrument>).map((item) => {
+                                                return(
+                                                    <option value={item}>{item}</option>
+                                                )
+                                            })}
                                         </select>
                                     </div>
                                 </div>
+                            </div>
+                            <div className='bio'>
+                                <p className='required'>Bio</p>
+                                <textarea name="bio" id="bio" placeholder='Write What You Want...' required
+                                          value={state.bio}
+                                          onChange={(e) => handleChange(e.target.name, e.target.value)}
+                                ></textarea>
                             </div>
                             <button>Submit</button>
                         </form>
@@ -251,14 +310,27 @@ const SignUp = () => {
                         <form onSubmit={(e: React.FormEvent) => handleSubmit(e)}>
                             <div className='yourPassions'>
                                 <p className='required'>Upload 2 or more videos</p>
-                                <div className='videoContainer' ref={ref}>
-                                    {[...Array(videoMaxAmount)].map((i: number) => {
+                                <div className='videoContainer'>
+                                    {[...Array(mediaMaxAmount)].map((i: number, index: number) => {
                                         return (
-                                            <div>
+                                            <div ref={el => mediaContainerRef.current[index] = el}>
                                                 <label htmlFor="file" className="custom-file-upload">
-                                                    <video src=""/>
+                                                    <img
+                                                        src=""
+                                                        key={index}
+                                                        ref={el => imageRef.current[index] = el}
+                                                    />
+                                                    <video
+                                                        autoPlay
+                                                        key={index}
+                                                        ref={el => videoRef.current[index] = el}
+                                                    >
+
+                                                    </video>
                                                 </label>
-                                                <input type="file" id='file' onChange={(e: React.ChangeEvent) => handleUpload(e)} />
+                                                <input type="file" id='file' onChange={(e: React.ChangeEvent) => handleFileUpload(e)} />
+                                                <img className='addFile' src={Plus} />
+                                                <img className='deleteFile' src={Plus} />
                                             </div>
                                         )
                                     })}

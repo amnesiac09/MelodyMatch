@@ -7,9 +7,10 @@ import {NavbarPopup, NewMatchesPopup} from '../components'
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import * as api from '../api/api'
-import { filterUsers, setActiveUser } from '../redux/actions/userActions';
+import { filterUsers, logOutUser, setActiveUser } from '../redux/actions/userActions';
 import { useDispatch } from 'react-redux';
 import { MusicalGenres, MusicalInstrument } from '../enums/Enum';
+import { useCookies } from 'react-cookie';
 
 const Sidebar: React.FC<{
     newMatchesPopupVisible: boolean,
@@ -21,12 +22,14 @@ const Sidebar: React.FC<{
           newMatchesAmount
       }) => {
 
+    const [cookies, setCookie, removeCookie] = useCookies(['rf_token']);
+
     const [navbarPopupVisible, setNavbarPopupVisible] = useState(false)
     const [matchedUsers, setMatchedUsers] = useState([])
     const [filterState, setFilterState] = useState({
         nickname: "",
-        genre: "",
-        instrument: ""
+        genre: undefined,
+        instrument: undefined
     })
 
     const {isLoggedIn, userInfo, activeUser} = useSelector((state: RootState) => state.UsersReducer)
@@ -35,21 +38,27 @@ const Sidebar: React.FC<{
     const navigate = useNavigate()
     const location = useLocation()
 
-    const centerViews = ['explore', 'messages']
-    const [centerView, setCenterView] = useState(centerViews[0])
+    const [pathname, setPathname] = useState('')
+
+
+
+    // const centerViews = ['explore', 'messages']
+    // const [centerView, setCenterView] = useState(centerViews[0])
 
     // const [isViewAs, setIsViewAs] = useState(false)
 
     useEffect(() => {
         // execute on location change
         // setIsViewAs(false)
-        if(location.pathname === '/chat') {
+        setPathname(location.pathname)
+
+        if(location.pathname === '/chat' && isLoggedIn) {
             const getMatchedUsers = async () => {
                 let res = await api.getMatchedUsers((userInfo as any).username)
                 return res
             }
             try {
-                let res: any = getMatchedUsers().then((res) => {
+                getMatchedUsers().then((res) => {
                     setMatchedUsers(res.data)
                     setActiveUser(matchedUsers[0])
                     dispatch(setActiveUser(matchedUsers[0]) as any)
@@ -60,22 +69,10 @@ const Sidebar: React.FC<{
         }
     }, [location]);
 
-    // useEffect(() => {
-    //   const getUsers = async () => {
-    //     const data = {
-    //       nickname: (userInfo as any).username,
-    //       musicalGenres: [],
-    //       musicalInstruments: []
-    //     }
-    //     let res = await api.getUsers(data)
-    //     return res
-    //   }
-
-    //   getUsers().then(res => {
-    //     setUsers(res.data)
-    //   })
-
-    // }, [])
+    const handleLogOut = () => {
+        removeCookie("rf_token")
+        dispatch(logOutUser() as any)
+    }
 
 
     const handleChange = (name: string, value: string) => {
@@ -99,6 +96,11 @@ const Sidebar: React.FC<{
     }
 
     const handleReset = () => {
+        setFilterState({
+            ...filterState,
+            genre: null,
+            instrument: null
+        } as any)
         dispatch(filterUsers(null) as any)
     }
 
@@ -110,10 +112,10 @@ const Sidebar: React.FC<{
                     <div className='buttons'>
                         { isLoggedIn &&
                             <>
-                                <button onClick={() => {navigate('/explore'); setCenterView(centerViews[0]);}}>
+                                <button onClick={() => {navigate('/explore'); }}>
                                     <img src={Search} />
                                 </button>
-                                <button onClick={() => {navigate('/chat'); setCenterView(centerViews[1]);}}>
+                                <button onClick={() => {navigate('/chat'); }}>
                                     <img src={Message} />
                                 </button>
                             </>
@@ -128,7 +130,7 @@ const Sidebar: React.FC<{
                 </div>
                 <div className='center_part'>
                     {
-                        centerView === 'explore' ?
+                        (location.pathname === '/explore' && isLoggedIn) ?
                             <form className='filters' onSubmit={(e) => handleFilter(e)} onReset={() => handleReset()}>
                                 <p>Filters</p>
                                 <div>
@@ -160,18 +162,20 @@ const Sidebar: React.FC<{
                                 <button type='submit'>filter</button>
                                 <button type='reset'>reset</button>
                             </form>
-                            : <div className='messagesContainer'>
-                                {
-                                    matchedUsers.length > 0 && matchedUsers.map((item: any) => {
-                                        return (
-                                            <div onClick={() => dispatch(setActiveUser(item) as any)} className={`${item.matchedUser.id === (activeUser as any)?.matchedUser.id ? 'active' : ''}`}>
-                                                <p>{item.matchedUser.username}</p>
-                                                <p>{item.lastMessage?.senderUsername === (userInfo as any).username ? '↪' : '↩'} {item.lastMessage?.messageContent !== '' ? item.lastMessage?.messageContent : 'Tap to send message'}</p>
-                                            </div>
-                                        )
-                                    })
-                                }
-                            </div>
+                            : (location.pathname === '/chat' && isLoggedIn) ? <div className='messagesContainer'>
+                                    {
+                                        matchedUsers.length > 0 && matchedUsers.map((item: any) => {
+                                            console.log(item)
+                                            return (
+                                                <div onClick={() => dispatch(setActiveUser(item) as any)} className={`${item.matchedUser.id === (activeUser as any)?.matchedUser.id ? 'active' : ''}`}>
+                                                    <p>{item.matchedUser.username}</p>
+                                                    <p>{item.lastMessage?.senderUsername === (userInfo as any).username ? '↩' : '↪'} {item.lastMessage?.messageContent ? item.lastMessage?.messageContent : 'Tap to send message'}</p>
+                                                </div>
+                                            )
+                                        })
+                                    }
+                                </div>
+                                : <></>
                     }
                 </div>
 
@@ -183,7 +187,7 @@ const Sidebar: React.FC<{
                             </a>
                         </button>
                         {
-                            isLoggedIn && <button>log out</button>
+                            isLoggedIn && <button onClick={() => handleLogOut()}>log out</button>
                         }
                     </div>
                 </div>

@@ -2,19 +2,8 @@ import { GET_USERS, CREATE_USER, LOGIN_USER, EDIT_USER, RESET_PASSWORD, FORGET_P
 
 const initialState = {
     users: [],
-    isLoggedIn: true,
-    userInfo: {
-        // id: 1,
-        // username: '2',
-        // password: 's',
-        // name: 'saba',
-        // email: 'sa',
-        // bio: '',
-        // likedUsers:	[5],
-        // matchedUsers:	[11],
-        // mediaFilenames:	[],
-        // newMatchedUsersCount: 0
-    },
+    isLoggedIn: false,
+    userInfo: null,
     token: '',
     activeUser: null,
     filterData: null

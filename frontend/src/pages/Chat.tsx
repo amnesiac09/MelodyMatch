@@ -12,13 +12,13 @@ import Stomp from 'stompjs'
 import SockJS from "sockjs-client";
 import * as api from '../api/api'
 import { useSelector } from 'react-redux';
-import { formatTime } from '../utils/utils';
+import { formatDateToAMPM } from '../utils/utils';
 
 const Chat = () => {
 
     const navigate = useNavigate()
 
-    const [activeVideoIndex, setActiveVideoIndex] = useState(0)
+    const [activeMediaIndex, setActiveMediaIndex] = useState(0)
     const [messages, setMessages] = useState([])
     const [sendButtonType, setSendButtonType] = useState("SEND")
     const [currentMessage, setCurrentMessage] = useState(
@@ -38,15 +38,9 @@ const Chat = () => {
 
     const {isLoggedIn, userInfo, activeUser} = useSelector((state: RootState) => state.UsersReducer)
     const [stompClient, setStompClient] = useState(null)
-    const videos = [
-        'https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_4201d662-697d-4228-b04e-029a0705ddd2.webp',
-        "https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_24fc451c-57cd-42a4-aced-03bc040f3201.webp",
-        'https://images-ssl.gotinder.com/64eb22fae774a40100abace5/640x800_75_4201d662-697d-4228-b04e-029a0705ddd2.webp',
-    ]
 
 
     const getMessages = async () => {
-        console.log((userInfo as any).username, (activeUser as any)?.matchedUser.username)
         let res: any = await api.getMessages((userInfo as any).username, (activeUser as any)?.matchedUser.username)
         setMessages(res)
     }
@@ -104,7 +98,7 @@ const Chat = () => {
             messageContent: textareaRef.current.value,
             seen: false
         };
-        let a = await (stompClient as any).send('/app/sendMessage', {}, JSON.stringify(data))
+        await (stompClient as any).send('/app/sendMessage', {}, JSON.stringify(data))
         // let b = await getMessages()
         // console.log(a,b)
         // setMessages({
@@ -122,8 +116,8 @@ const Chat = () => {
             messageId: (currentMessage as any).id,
             content: (currentMessage as any).messageContent,
             delete: shouldDelete,
-            senderNickname: "yaa",
-            receiverNickname: "x"
+            senderNickname: (userInfo as any).username,
+            receiverNickname: (activeUser as any)?.matchedUser.username,
         }
         await api.editMessage(data)
         // await getMessages()
@@ -137,8 +131,8 @@ const Chat = () => {
             messageId: id,
             content: '',
             delete: true,
-            senderNickname: "yaa",
-            receiverNickname: "x"
+            senderNickname: (userInfo as any).username,
+            receiverNickname: (activeUser as any)?.matchedUser.username,
         }
         await api.editMessage(data)
         // await getMessages()
@@ -163,7 +157,7 @@ const Chat = () => {
             </div> */}
                     {
                         messages.length > 0 && messages.map((item: any, i) => {
-                            let isMine = item.senderUsername === 'yaa'
+                            let isMine = item.senderUsername === (userInfo as any).username
                             let isLast = i === messages.length - 1
                             let isDeleted = item.messageType === "DELETED"
                             return (
@@ -173,7 +167,7 @@ const Chat = () => {
                                         <img src={Edit} onClick={() => setEditingMessage(item)} />
                                     </>
                                     }
-                                    <time>{formatTime(item.sentTime)}</time>
+                                    <time>{formatDateToAMPM(item.sentTime)}</time>
                                     <div className={`message ${isDeleted ? "deleted" : ""}`}>{item.messageContent}</div>
                                 </div>
                             )
@@ -193,54 +187,90 @@ const Chat = () => {
 
 
             <div className='partnerInfo'>
-                <div className='videoContainer'>
-                    {
-                        videos.map((item: string, index:number) => {
-                            return (
-                                activeVideoIndex === index && <img src={'https://images.pexels.com/photos/10434979/pexels-photo-10434979.jpeg?cs=srgb&dl=pexels-cottonbro-studio-10434979.jpg&fm=jpg'} />
-                                // <img src={item} alt="" className={activeVideoIndex === index ? 'active': ''} />
-                            )
-                        })
-                    }
-                    <div className='arrows'>
-                        <div onClick={() => setActiveVideoIndex(activeVideoIndex-1)} className={`arrowLeft ${activeVideoIndex !== 0 ? 'active' : ''}`}>
-                            <img src={ArrowLeft} alt="" />
-                        </div>
-                        <div onClick={() => setActiveVideoIndex(activeVideoIndex+1)} className={`arrowRight ${activeVideoIndex !== videos.length - 1 ? 'active': ''}`}>
-                            <img src={ArrowRight} alt="" />
-                        </div>
-                    </div>
-                    <div className='bullets'>
+                {activeUser && <>
+                    <div className='videoContainer'>
                         {
-                            videos.map((item: string, index:number) => {
+                            (activeUser as any).matchedUser.mediaFilenames.map((item: string, index:number) => {
+                                console.log(item)
+                                let isVideo = item.includes('mp4') || item.includes('wav')
                                 return (
-                                    <div onClick={() => setActiveVideoIndex(index)} className={activeVideoIndex === index ? 'active' : ''}></div>
+                                    activeMediaIndex === index && ( !isVideo ?
+                                            <img
+                                                src={item}
+                                                key={index}
+                                            />
+                                            :
+                                            <video
+                                                autoPlay
+                                                key={index}
+                                                src={item}
+                                            >
+                                            </video>
+                                    )
                                 )
                             })
                         }
-                    </div>
-                </div>
-                <div className='info'>
-                    <div className='basic'>
-                        <p className='nameAndAge'>Maryam</p>
-                        <div className='gender'>
-                            <img src={GenderMan} alt="" />
-                            <p>Man</p>
+                        <div className='arrows'>
+                            <div onClick={() => setActiveMediaIndex(activeMediaIndex-1)} className={`arrowLeft ${activeMediaIndex !== 0 ? 'active' : ''}`}>
+                                <img src={ArrowLeft} alt="" />
+                            </div>
+                            <div onClick={() => setActiveMediaIndex(activeMediaIndex+1)} className={`arrowRight ${activeMediaIndex !== (activeUser as any).matchedUser.mediaFilenames.length - 1 ? 'active': ''}`}>
+                                <img src={ArrowRight} alt="" />
+                            </div>
                         </div>
-                        <div className='destination'>
-                            <img src={Home} alt="" />
-                            <p>Lives in Tbilisi</p>
+                        <div className='bullets'>
+                            {
+                                (activeUser as any).matchedUser.mediaFilenames.map((item: string, index:number) => {
+                                    return (
+                                        <div onClick={() => setActiveMediaIndex(index)} className={activeMediaIndex === index ? 'active' : ''}></div>
+                                    )
+                                })
+                            }
                         </div>
                     </div>
-                    <div className='more'>
-                        <div className='passions'>
-                            <p>Passions</p>
-                            <div>
-                                <div>guitar</div><div>violin</div><div>singing</div><div>coffee</div><div>sneakers</div>
+                    <div className='info'>
+                        <div className='basic'>
+                            <p className='nameAndAge'>{(activeUser as any).matchedUser.name}</p>
+                            <div className='gender'>
+                                <img src={(activeUser as any).gender === "MALE" ? GenderMan : GenderWoman} alt="" />
+                                <p>{(activeUser as any).gender === "MALE" ? 'Man' : 'Woman'}</p>
+                            </div>
+                            <div className='destination'>
+                                <img src={Home} alt="" />
+                                <p>Lives in {(activeUser as any).matchedUser.location}</p>
+                            </div>
+                        </div>
+                        <div className='more'>
+                            <div className='passions'>
+                                <p>Favorite Genre</p>
+                                <div>
+                                    {(activeUser as any).matchedUser.musicalGenres.map((item: any) => {
+                                        return (
+                                            <div>{item}</div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                            <div className='passions'>
+                                <p>Favorite Instrument</p>
+                                <div>
+                                    {(activeUser as any).matchedUser.musicalInstruments.map((item: any) => {
+                                        return (
+                                            <div>{item}</div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                            <div className='passions'>
+                                <p>Bio</p>
+                                <div>
+                                    {(activeUser as any).matchedUser.bio}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </>
+                }
             </div>
         </div>
     )

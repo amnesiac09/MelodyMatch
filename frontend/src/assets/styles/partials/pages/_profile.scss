@@ -37,17 +37,17 @@
             flex-direction: column;
             gap: 18px;
             width: 25vw;
-            
+
             & > div {
                 @include flexbox(center, unset);
                 flex-direction: column;
                 gap: 10px;
                 width: 100%;
-    
+
                 & > div {
                     @include flexbox(space-between, center);
                     gap: 20px;
-    
+
                     & > div {
                         width: 100%;
                         & > label {
@@ -57,15 +57,15 @@
                     }
                 }
             }
-    
+
             & > .date > div {
                 width: 50%;
-            } 
-    
+            }
+
             p {
                 font-size: 17px;
             }
-    
+
             input, select {
                 width: 100%;
                 background-color: transparent;
@@ -73,24 +73,24 @@
                 border: 1px solid black;
                 color: black;
             }
-    
+
             option {
                 background-color: white;
                 padding: 5px;
             }
-    
+
             button {
                 background-color: transparent;
                 border: 1px solid black;
                 padding: 10px;
                 transition: 300ms;
-    
+
                 &:hover {
                     background-color: #37AF91;
                     color: #F0F2F4;
                 }
             }
-    
+
             .required:after {
                 content: '*';
                 color: red;
@@ -98,7 +98,7 @@
             }
         }
     }
-    
+
     input[type="file"] {
         display: none;
     }
@@ -113,7 +113,7 @@
         padding: 8px;
         font-size: 14px;
     }
-    
+
     .custom-file-upload {
         border: 1px solid #ccc;
         display: inline-block;
@@ -131,6 +131,7 @@
         & > div {
             width: 100%;
             height: 100%;
+            position: relative;
 
             & > label {
                 width: 100%;
@@ -142,38 +143,84 @@
                 align-items: center;
                 margin-bottom: 0px;
 
-                &::before {
-                    content: '+';
-                    position: absolute;
-                    bottom: -5px;
-                    right: -5px;
-                    border-radius: 50%;
-                    background-color: #37AF91;
-                    width: 25px;
-                    height: 25px;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    font-size: 22px;
-                    color: white;
-                }
+                // &::before {
+                //     content: '+';
+                //     position: absolute;
+                //     bottom: -5px;
+                //     right: -5px;
+                //     border-radius: 50%;
+                //     background-color: #37AF91;
+                //     width: 25px;
+                //     height: 25px;
+                //     display: flex;
+                //     justify-content: center;
+                //     align-items: center;
+                //     font-size: 22px;
+                //     color: white;
+                // }
 
-                video {
+
+                video, img {
                     border-radius: 12px;
                     // width: 100%;
                     // height: calc(500px/3);
                     display: none;
                     width: 100%;
                     max-height: calc((550px - 24px)/3);
+                    object-fit: cover;
+                    width: 100%;
+                    height: 100%;
                 }
             }
 
-            &.active {
-                label::before {
-                    content: 'x';
+            & > img {
+                position: absolute;
+                background-color: #37AF91;
+                border-radius: 50%;
+                width: 25px;
+                height: 25px;
+                font-size: 22px;
+                color: white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                bottom: -5px;
+                right: -5px;
+                padding: 3px;
+
+                &.deleteFile {
+                    transform: rotate(45deg);
+                    background-color: red;
+                    display: none;
                 }
-                img {
-                    display: unset;
+            }
+
+            &.uploaded {
+                & > img {
+                    &.deleteFile {
+                        display: flex;
+                        cursor: pointer;
+                    }
+                }
+                .custom-file-upload {
+                    cursor: unset;
+                    pointer-events: none;
+                }
+            }
+            &.isVideo {
+                label > img {
+                    display: none!important;
+                }
+                label > video {
+                    display: unset!important;
+                }
+            }
+            &.isImage {
+                label > video {
+                    display: none!important;
+                }
+                label > img {
+                    display: unset!important;
                 }
             }
         }
